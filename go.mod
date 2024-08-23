@@ -1,4 +1,4 @@
-module github.com/ValmirNogFilho/Storkie
+module storkie
 
 go 1.22.2
 
