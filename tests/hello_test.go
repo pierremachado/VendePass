@@ -2,9 +2,9 @@ package tests
 
 import "testing"
 
-const ret string = "Hello"
+const ret string = "Helo"
 
-func assertHello(t *testing.T) {
+func TestAssertHello(t *testing.T) {
 	if ret != "Hello" {
 		t.Fatalf("should have been test")
 	}
