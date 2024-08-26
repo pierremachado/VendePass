@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"storkie/internal/models"
-
+	"flycheap/internal/models"
 	"github.com/google/uuid"
 )
 

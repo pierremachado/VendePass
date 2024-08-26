@@ -1,4 +1,4 @@
-module storkie
+module flycheap
 
 go 1.22.2
 
