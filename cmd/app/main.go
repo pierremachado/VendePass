@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"flycheap/internal/models"
+	"vendepass/internal/models"
+
 	"github.com/google/uuid"
 )
 
