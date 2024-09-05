@@ -9,4 +9,5 @@ type Flight struct {
 	Source     Airport
 	Dest       Airport
 	Passengers []Ticket
+	Seats      uint
 }

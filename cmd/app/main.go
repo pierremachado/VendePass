@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	fly := models.Fly{
+	fly := models.Flight{
 		Id: uuid.New(),
 	}
 	fmt.Println(fly.Id)
