@@ -32,3 +32,12 @@ type ClientDAO interface {
 	FindById(uuid.UUID) (*models.Client, error)
 	New()
 }
+
+type SessionDAO interface {
+	FindAll() []*models.Session
+	Insert(*models.Session)
+	Update(*models.Session) error
+	Delete(*models.Session)
+	FindById(uuid.UUID) (*models.Session, error)
+	New()
+}

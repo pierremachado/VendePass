@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"vendepass/internal/models"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -39,6 +41,35 @@ func main() {
 	receive := make([]byte, 2048)
 
 	n, read_err := conn.Read(receive)
+
+	if read_err != nil {
+		fmt.Println("erro na escrita: ", read_err)
+		return
+	}
+
+	token, _ := uuid.Parse(string(receive[:n]))
+
+	fmt.Println(token)
+
+	logout := models.Request{
+		Action: "logout",
+		Data: models.LogoutCredentials{
+			TokenId: token,
+		},
+	}
+
+	buffer, _ = json.Marshal(logout)
+
+	_, write_err = conn.Write(buffer)
+
+	if write_err != nil {
+		fmt.Println("erro na escrita: ", write_err)
+		return
+	}
+
+	receive = make([]byte, 2048)
+
+	n, read_err = conn.Read(receive)
 
 	if read_err != nil {
 		fmt.Println("erro na escrita: ", read_err)

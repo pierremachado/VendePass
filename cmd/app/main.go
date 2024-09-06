@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"vendepass/internal/models"
+	"time"
 	"vendepass/internal/server"
-
-	"github.com/google/uuid"
 )
 
 const (
-	port string = ":8080"
+	port      = ":8080"
+	timeLimit = 30 * time.Minute
 )
 
 func main() {
@@ -24,7 +23,7 @@ func main() {
 
 	fmt.Println("servidor ouvindo na porta :8080")
 
-	sessions := make(map[uuid.UUID]*models.Session)
+	go server.CleanupSessions(timeLimit)
 
 	for {
 		conn, err := listener.Accept()
@@ -33,7 +32,7 @@ func main() {
 			continue
 		}
 
-		go server.HandleConn(conn, sessions)
+		go server.HandleConn(conn)
 	}
 
 }

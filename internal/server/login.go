@@ -29,7 +29,7 @@ func PasswordMatches(client *models.Client, password string) bool {
 	return client.Password == password
 }
 
-func login(data interface{}, conn net.Conn) {
+func login(data interface{}, conn net.Conn, session *models.Session) {
 	var logCred models.LoginCredentials
 
 	jsonData, _ := json.Marshal(data)
@@ -44,14 +44,30 @@ func login(data interface{}, conn net.Conn) {
 
 	fmt.Println(PasswordMatches(login, logCred.Password))
 	if PasswordMatches(login, logCred.Password) {
-		welcome := fmt.Sprintf("Bem vindo, %s", login.Name)
-		_, err = conn.Write([]byte(welcome))
+		token := fmt.Sprintf("%s", session.ID)
+		_, err = conn.Write([]byte(token))
 
 		if err != nil {
 			fmt.Println("erro na comunicação com o cliente", err)
 			return
 		}
-
 	}
 
+}
+
+func logout(data interface{}, conn net.Conn) {
+	defer conn.Close()
+	var logCred models.LogoutCredentials
+
+	jsonData, _ := json.Marshal(data)
+	json.Unmarshal(jsonData, &logCred)
+
+	session, err := dao.GetSessionDAO().FindById(logCred.TokenId)
+
+	if err != nil {
+		conn.Write([]byte("erro na remoção de sessão"))
+	}
+
+	dao.GetSessionDAO().Delete(session)
+	conn.Write([]byte("logout realizado com sucesso"))
 }
