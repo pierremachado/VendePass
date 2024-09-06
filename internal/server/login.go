@@ -29,7 +29,7 @@ func PasswordMatches(client *models.Client, password string) bool {
 	return client.Password == password
 }
 
-func Login(data interface{}, conn net.Conn) {
+func login(data interface{}, conn net.Conn) {
 	var logCred models.LoginCredentials
 
 	jsonData, _ := json.Marshal(data)
@@ -42,7 +42,7 @@ func Login(data interface{}, conn net.Conn) {
 		return
 	}
 
-	fmt.Print(PasswordMatches(login, logCred.Password))
+	fmt.Println(PasswordMatches(login, logCred.Password))
 	if PasswordMatches(login, logCred.Password) {
 		welcome := fmt.Sprintf("Bem vindo, %s", login.Name)
 		_, err = conn.Write([]byte(welcome))

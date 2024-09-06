@@ -29,11 +29,21 @@ func main() {
 
 	buffer, _ := json.Marshal(login)
 
-	n, write_err := conn.Write(buffer)
+	_, write_err := conn.Write(buffer)
 
 	if write_err != nil {
-		fmt.Println("erro na escrita: ", err)
+		fmt.Println("erro na escrita: ", write_err)
+		return
 	}
 
-	fmt.Println(n)
+	receive := make([]byte, 2048)
+
+	n, read_err := conn.Read(receive)
+
+	if read_err != nil {
+		fmt.Println("erro na escrita: ", read_err)
+		return
+	}
+	fmt.Println(string(receive[:n]))
+
 }

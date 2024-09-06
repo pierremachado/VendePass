@@ -1,16 +1,21 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
 	"vendepass/internal/models"
 	"vendepass/internal/server"
+
+	"github.com/google/uuid"
+)
+
+const (
+	port string = ":8080"
 )
 
 func main() {
-	listener, err := net.Listen("tcp", ":8080")
+	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		fmt.Println("Listener não criado", err)
 		os.Exit(1)
@@ -19,6 +24,8 @@ func main() {
 
 	fmt.Println("servidor ouvindo na porta :8080")
 
+	sessions := make(map[uuid.UUID]*models.Session)
+
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -26,33 +33,7 @@ func main() {
 			continue
 		}
 
-		go handleConn(conn)
+		go server.HandleConn(conn, sessions)
 	}
 
-}
-
-func handleConn(conn net.Conn) {
-	defer conn.Close()
-
-	buffer := make([]byte, 2048)
-	n, err := conn.Read(buffer)
-
-	if err != nil {
-		fmt.Println("erro na leitura do buffer", err)
-		return
-	}
-
-	var request models.Request
-
-	json.Unmarshal(buffer[:n], &request)
-
-	handleRequest(request, conn)
-
-}
-
-func handleRequest(request models.Request, conn net.Conn) {
-	switch {
-	case request.Action == "login":
-		server.Login(request.Data, conn)
-	}
 }
