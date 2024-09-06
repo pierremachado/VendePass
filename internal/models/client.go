@@ -5,9 +5,9 @@ import (
 )
 
 type Client struct {
-	Id             uuid.UUID
-	Name           string
-	Username       string
-	Password       string
-	Client_flights []Ticket
+	Id             uuid.UUID `json:"Id"`
+	Name           string    `json:"Name"`
+	Username       string    `json:"Username"`
+	Password       string    `json:"Password"`
+	Client_flights []Ticket  `json:"Client_flights"`
 }
