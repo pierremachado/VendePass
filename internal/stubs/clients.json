@@ -1,0 +1,24 @@
+[
+    {
+      "Id": "550e8400-e29b-41d4-a716-446655440000",
+      "Name": "João Silva",
+      "Username": "joaosilva",
+      "Password": "senhaSegura123",
+      "Client_flights": []
+    },
+    {
+      "Id": "550e8400-e29b-41d4-a716-446655440001",
+      "Name": "Maria Souza",
+      "Username": "mariasouza",
+      "Password": "senhaSegura456",
+      "Client_flights": []
+    },
+    {
+      "Id": "550e8400-e29b-41d4-a716-446655440002",
+      "Name": "Pedro Costa",
+      "Username": "pedrocosta",
+      "Password": "senhaSegura789",
+      "Client_flights": []
+    }
+]
+  
