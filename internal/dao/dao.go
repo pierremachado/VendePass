@@ -9,6 +9,7 @@ import (
 
 var ticketDao interfaces.TicketDAO
 var flightDao interfaces.FlightDAO
+var clientDao interfaces.ClientDAO
 
 func GetTicketDAO() interfaces.TicketDAO {
 
@@ -27,11 +28,10 @@ func GetFlightDAO() interfaces.FlightDAO {
 	return flightDao
 }
 
-var clientDao interfaces.ClientDAO
-
 func GetClientDAO() interfaces.ClientDAO {
 	if clientDao == nil {
 		clientDao = &MemoryClientDAO{make(map[uuid.UUID]models.Client)}
+		clientDao.New()
 	}
 
 	return clientDao

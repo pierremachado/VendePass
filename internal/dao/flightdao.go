@@ -1,7 +1,11 @@
 package dao
 
 import (
+	"encoding/json"
 	"errors"
+	"log"
+	"os"
+	"path/filepath"
 	"vendepass/internal/models"
 
 	"github.com/google/uuid"
@@ -9,6 +13,27 @@ import (
 
 type MemoryFlightDAO struct {
 	data map[uuid.UUID]models.Flight
+}
+
+func (dao *MemoryFlightDAO) New() {
+
+	baseDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jsonPath := filepath.Join(baseDir, "internal", "stubs", "flights.json")
+
+	b, _ := os.ReadFile(jsonPath)
+
+	var flights []models.Flight
+
+	json.Unmarshal(b, &flights)
+
+	for _, flights := range flights {
+		dao.data[flights.Id] = flights
+	}
+
 }
 
 func (dao *MemoryFlightDAO) FindAll() []models.Flight {

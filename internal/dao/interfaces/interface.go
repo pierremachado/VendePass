@@ -12,6 +12,7 @@ type TicketDAO interface {
 	Update(*models.Ticket) error
 	Delete(models.Ticket)
 	FindById(uuid.UUID) (*models.Ticket, error)
+	New()
 }
 
 type FlightDAO interface {
@@ -20,6 +21,7 @@ type FlightDAO interface {
 	Update(*models.Flight) error
 	Delete(models.Flight)
 	FindById(uuid.UUID) (*models.Flight, error)
+	New()
 }
 
 type ClientDAO interface {
@@ -28,4 +30,5 @@ type ClientDAO interface {
 	Update(*models.Client) error
 	Delete(models.Client)
 	FindById(uuid.UUID) (*models.Client, error)
+	New()
 }

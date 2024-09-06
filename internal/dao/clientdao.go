@@ -1,7 +1,11 @@
 package dao
 
 import (
+	"encoding/json"
 	"errors"
+	"log"
+	"os"
+	"path/filepath"
 	"vendepass/internal/models"
 
 	"github.com/google/uuid"
@@ -9,6 +13,27 @@ import (
 
 type MemoryClientDAO struct {
 	data map[uuid.UUID]models.Client
+}
+
+func (dao *MemoryClientDAO) New() {
+
+	var clients []models.Client
+
+	baseDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jsonPath := filepath.Join(baseDir, "internal", "stubs", "clients.json")
+
+	b, _ := os.ReadFile(jsonPath)
+
+	json.Unmarshal(b, &clients)
+
+	for _, client := range clients {
+		dao.data[client.Id] = client
+	}
+
 }
 
 func (dao *MemoryClientDAO) FindAll() []models.Client {
