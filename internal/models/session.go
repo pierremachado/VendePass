@@ -1,15 +1,12 @@
 package models
 
 import (
-	"net"
 	"time"
-
 	"github.com/google/uuid"
 )
 
 type Session struct {
 	ID             uuid.UUID
-	Username       string
-	Connection     net.Conn
+	Client         Client
 	LastTimeActive time.Time
 }
