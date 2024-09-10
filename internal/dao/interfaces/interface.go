@@ -19,8 +19,10 @@ type FlightDAO interface {
 	FindAll() []models.Flight
 	Insert(*models.Flight)
 	Update(*models.Flight) error
-	Delete(models.Flight)
+	Delete(models.Flight) error
 	FindById(uuid.UUID) (*models.Flight, error)
+	FindBySource(uuid.UUID) ([]*models.Flight, error)
+	FindBySourceAndDest(uuid.UUID, uuid.UUID) (*models.Flight, error)
 	New()
 }
 

@@ -23,7 +23,7 @@ func GetTicketDAO() interfaces.TicketDAO {
 
 func GetFlightDAO() interfaces.FlightDAO {
 	if flightDao == nil {
-		flightDao = &MemoryFlightDAO{make(map[uuid.UUID]models.Flight)}
+		flightDao = &MemoryFlightDAO{make(map[uuid.UUID]map[uuid.UUID]models.Flight)}
 	}
 
 	return flightDao
