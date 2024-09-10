@@ -12,33 +12,23 @@ import (
 func HandleConn(conn net.Conn) {
 	defer conn.Close()
 
-	session := &models.Session{Connection: conn, LastTimeActive: time.Now()}
-	dao.GetSessionDAO().Insert(session)
-
-	defer dao.GetSessionDAO().Delete(session)
-
 	buffer := make([]byte, 2048)
-	for {
-		n, err := conn.Read(buffer)
+	n, err := conn.Read(buffer)
 
+	if err != nil {
+		fmt.Println("erro na leitura do buffer", err)
+		return
+	}
+
+	if n > 0 {
+		var request models.Request
+
+		err = json.Unmarshal(buffer[:n], &request)
 		if err != nil {
-			fmt.Println("erro na leitura do buffer", err)
-			return
+			fmt.Println("Erro ao desserializar o JSON:", err)
 		}
 
-		session.LastTimeActive = time.Now()
-
-		if n > 0 {
-			var request models.Request
-
-			err = json.Unmarshal(buffer[:n], &request)
-			if err != nil {
-				fmt.Println("Erro ao desserializar o JSON:", err)
-				continue
-			}
-
-			handleRequest(request, conn, session)
-		}
+		handleRequest(request, conn)
 	}
 
 }
@@ -51,18 +41,29 @@ func CleanupSessions(timeout time.Duration) {
 		for _, session := range dao.GetSessionDAO().FindAll() {
 			if time.Since(session.LastTimeActive) > timeout {
 				fmt.Printf("Encerrando sessão %s por inatividade\n", session.ID)
-				session.Connection.Close()
 				dao.GetSessionDAO().Delete(session)
 			}
 		}
 	}
 }
 
-func handleRequest(request models.Request, conn net.Conn, session *models.Session) {
+func handleRequest(request models.Request, conn net.Conn) {
 	switch {
 	case request.Action == "login":
-		login(request.Data, conn, session)
+		login(request.Data, conn)
 	case request.Action == "logout":
 		logout(request.Data, conn)
+	}
+}
+
+func WriteNewResponse(response models.Response, conn net.Conn) {
+	jsonData, err := json.Marshal(response)
+	if err != nil {
+		fmt.Println("Error marshalling response:", err)
+		return
+	}
+	_, err = conn.Write(jsonData)
+	if err != nil {
+		fmt.Println("Error writing response:", err)
 	}
 }
