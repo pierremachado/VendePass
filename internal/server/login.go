@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"time"
 	"vendepass/internal/dao"
 	"vendepass/internal/models"
 	"vendepass/internal/utils"
@@ -29,8 +30,12 @@ func PasswordMatches(client *models.Client, password string) bool {
 	return client.Password == password
 }
 
-func login(data interface{}, conn net.Conn, session *models.Session) {
+func login(data interface{}, conn net.Conn) {
 	var logCred models.LoginCredentials
+
+	response := models.Response{Data: make(map[string]interface{})}
+
+	// defer WriteNewResponse(response, conn)
 
 	jsonData, _ := json.Marshal(data)
 	json.Unmarshal(jsonData, &logCred)
@@ -41,23 +46,27 @@ func login(data interface{}, conn net.Conn, session *models.Session) {
 		fmt.Println("error:", err)
 		return
 	}
-
 	fmt.Println(PasswordMatches(login, logCred.Password))
+
 	if PasswordMatches(login, logCred.Password) {
+		session := &models.Session{Client: *login, LastTimeActive: time.Now()}
+		dao.GetSessionDAO().Insert(session)
+
 		token := fmt.Sprintf("%s", session.ID)
-		_, err = conn.Write([]byte(token))
 
-		if err != nil {
-			fmt.Println("erro na comunicação com o cliente", err)
-			return
-		}
+		response.Data["token"] = token
+
+	} else {
+		response.Error = "invalid credentials"
 	}
-
+	WriteNewResponse(response, conn)
 }
 
 func logout(data interface{}, conn net.Conn) {
 	defer conn.Close()
 	var logCred models.LogoutCredentials
+
+	response := models.Response{Data: make(map[string]interface{})}
 
 	jsonData, _ := json.Marshal(data)
 	json.Unmarshal(jsonData, &logCred)
@@ -65,9 +74,13 @@ func logout(data interface{}, conn net.Conn) {
 	session, err := dao.GetSessionDAO().FindById(logCred.TokenId)
 
 	if err != nil {
-		conn.Write([]byte("erro na remoção de sessão"))
+		response.Error = "session not found"
+		WriteNewResponse(response, conn)
+		return
 	}
 
 	dao.GetSessionDAO().Delete(session)
-	conn.Write([]byte("logout realizado com sucesso"))
+
+	response.Data["msg"] = "logout realizado com sucesso"
+	WriteNewResponse(response, conn)
 }
