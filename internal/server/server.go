@@ -7,6 +7,8 @@ import (
 	"time"
 	"vendepass/internal/dao"
 	"vendepass/internal/models"
+
+	"github.com/google/uuid"
 )
 
 func HandleConn(conn net.Conn) {
@@ -16,16 +18,20 @@ func HandleConn(conn net.Conn) {
 	n, err := conn.Read(buffer)
 
 	if err != nil {
-		fmt.Println("erro na leitura do buffer", err)
+		WriteNewResponse(models.Response{
+			Error: "error when reading the buffer",
+		}, conn)
 		return
 	}
 
 	if n > 0 {
 		var request models.Request
-
 		err = json.Unmarshal(buffer[:n], &request)
 		if err != nil {
-			fmt.Println("Erro ao desserializar o JSON:", err)
+			WriteNewResponse(models.Response{
+				Error: "error on request format",
+			}, conn)
+			return
 		}
 
 		handleRequest(request, conn)
@@ -48,15 +54,21 @@ func CleanupSessions(timeout time.Duration) {
 }
 
 func handleRequest(request models.Request, conn net.Conn) {
-	switch {
-	case request.Action == "login":
+	switch request.Action {
+	case "login":
 		login(request.Data, conn)
-	case request.Action == "logout":
-		logout(request.Data, conn)
+	case "logout":
+		logout(request.Auth, conn)
+	case "all-routes":
+		AllRoutes(request.Auth, conn)
 	}
 }
 
 func WriteNewResponse(response models.Response, conn net.Conn) {
+	if response.Data == nil {
+		response.Data = make(map[string]interface{})
+	}
+
 	jsonData, err := json.Marshal(response)
 	if err != nil {
 		fmt.Println("Error marshalling response:", err)
@@ -66,4 +78,19 @@ func WriteNewResponse(response models.Response, conn net.Conn) {
 	if err != nil {
 		fmt.Println("Error writing response:", err)
 	}
+}
+
+func SessionIfExists(token string) (*models.Session, bool) {
+
+	uuid, err := uuid.Parse(token)
+	if err != nil {
+		return nil, false
+	}
+
+	session, err := dao.GetSessionDAO().FindById(uuid)
+	if err != nil {
+		return nil, false
+	}
+
+	return session, true
 }

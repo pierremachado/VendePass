@@ -5,7 +5,7 @@ import json
 ADDRESS = 'localhost'
 PORT = 8080
 
-def send_request(action, data):
+def send_request(action, auth, data):
     """Envia uma solicitação ao servidor e retorna a resposta."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         try:
@@ -15,6 +15,7 @@ def send_request(action, data):
             # Cria o pedido
             request = {
                 "Action": action,
+                "Auth": auth,
                 "Data": data
             }
             
@@ -26,7 +27,7 @@ def send_request(action, data):
             
             # Recebe a resposta do servidor
             receive = sock.recv(2048)
-            
+
             # Deserializa a resposta JSON
             response = json.loads(receive.decode('utf-8'))
             return response
@@ -39,23 +40,34 @@ def main():
     # Cria a conexão para o login
     login_response = send_request(
         "login",
+        "",
         {
             "Username": "pedrocosta",
-            "Password": "senhaSegura79"
-        }
+            "Password": "senhaSegura789"
+        },
     )
     
     if login_response:
         print("Resposta de Login:", login_response)
         token = login_response.get("Data", {}).get("token", "")
         
+        
+        if token:
+            logout_response = send_request(
+                "all-routes",
+                token,
+                {}
+            )
+            print("Resposta de Routes:", logout_response)
+        else:
+            print("Token não encontrado para o routes")
+
         # Cria a conexão para o logout
         if token:
             logout_response = send_request(
                 "logout",
-                {
-                    "TokenId": token
-                }
+                token,
+                {}
             )
             print("Resposta de Logout:", logout_response)
         else:

@@ -11,7 +11,7 @@ import (
 	"vendepass/internal/utils"
 )
 
-func GetClient(username string) (*models.Client, error) {
+func getClient(username string) (*models.Client, error) {
 	clientDao := dao.GetClientDAO()
 	client := utils.Find[models.Client](clientDao.FindAll(), func(c models.Client) bool {
 		return c.Username == username
@@ -26,7 +26,7 @@ func GetClient(username string) (*models.Client, error) {
 	return client, isError
 }
 
-func PasswordMatches(client *models.Client, password string) bool {
+func passwordMatches(client *models.Client, password string) bool {
 	return client.Password == password
 }
 
@@ -35,20 +35,20 @@ func login(data interface{}, conn net.Conn) {
 
 	response := models.Response{Data: make(map[string]interface{})}
 
-	// defer WriteNewResponse(response, conn)
-
 	jsonData, _ := json.Marshal(data)
 	json.Unmarshal(jsonData, &logCred)
 
-	login, err := GetClient(logCred.Username)
+	login, err := getClient(logCred.Username)
 
 	if err != nil {
-		fmt.Println("error:", err)
+		WriteNewResponse(
+			models.Response{
+				Error: err.Error(),
+			}, conn)
 		return
 	}
-	fmt.Println(PasswordMatches(login, logCred.Password))
 
-	if PasswordMatches(login, logCred.Password) {
+	if passwordMatches(login, logCred.Password) {
 		session := &models.Session{Client: *login, LastTimeActive: time.Now()}
 		dao.GetSessionDAO().Insert(session)
 
@@ -62,18 +62,13 @@ func login(data interface{}, conn net.Conn) {
 	WriteNewResponse(response, conn)
 }
 
-func logout(data interface{}, conn net.Conn) {
+func logout(auth string, conn net.Conn) {
 	defer conn.Close()
-	var logCred models.LogoutCredentials
-
 	response := models.Response{Data: make(map[string]interface{})}
 
-	jsonData, _ := json.Marshal(data)
-	json.Unmarshal(jsonData, &logCred)
+	session, exists := SessionIfExists(auth)
 
-	session, err := dao.GetSessionDAO().FindById(logCred.TokenId)
-
-	if err != nil {
+	if !exists {
 		response.Error = "session not found"
 		WriteNewResponse(response, conn)
 		return
@@ -81,6 +76,6 @@ func logout(data interface{}, conn net.Conn) {
 
 	dao.GetSessionDAO().Delete(session)
 
-	response.Data["msg"] = "logout realizado com sucesso"
+	response.Data["msg"] = "logout succesfully made"
 	WriteNewResponse(response, conn)
 }
