@@ -14,7 +14,6 @@ type FlightDAO interface {
 	FindById(uuid.UUID) (*models.Flight, error)
 	FindBySource(uuid.UUID) ([]*models.Flight, error)
 	FindBySourceAndDest(uuid.UUID, uuid.UUID) (*models.Flight, error)
-	BreadthFirstSearch(source uuid.UUID, dest uuid.UUID) ([]*models.Flight, error)
 	New()
 }
 
@@ -33,5 +32,14 @@ type SessionDAO interface {
 	Update(*models.Session) error
 	Delete(*models.Session)
 	FindById(uuid.UUID) (*models.Session, error)
+	New()
+}
+
+type AirportDAO interface {
+	FindAll() []*models.Airport
+	Insert(*models.Airport)
+	Update(*models.Airport) error
+	Delete(*models.Airport)
+	FindById(uuid.UUID) (*models.Airport, error)
 	New()
 }

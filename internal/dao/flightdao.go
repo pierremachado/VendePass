@@ -153,5 +153,5 @@ func (dao *MemoryFlightDAO) BreadthFirstSearch(source uuid.UUID, dest uuid.UUID)
 		return path, nil
 	}
 
-	return path, errors.New("no route available")
+	return nil, errors.New("no route available")
 }

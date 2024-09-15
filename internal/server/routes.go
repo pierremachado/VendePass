@@ -57,7 +57,7 @@ func Route(auth string, data interface{}, conn net.Conn) {
 		return
 	}
 
-	route, err := dao.GetFlightDAO().BreadthFirstSearch(source, dest)
+	route, err := dao.GetFlightDAO().FindBySourceAndDest(source, dest)
 	if err != nil {
 		response.Error = "no route"
 	} else {
