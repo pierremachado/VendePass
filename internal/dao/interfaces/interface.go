@@ -6,15 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type TicketDAO interface {
-	FindAll() []models.Ticket
-	Insert(*models.Ticket)
-	Update(*models.Ticket) error
-	Delete(models.Ticket)
-	FindById(uuid.UUID) (*models.Ticket, error)
-	New()
-}
-
 type FlightDAO interface {
 	FindAll() []models.Flight
 	Insert(*models.Flight)

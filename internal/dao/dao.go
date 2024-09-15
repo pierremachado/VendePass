@@ -7,19 +7,9 @@ import (
 	"github.com/google/uuid"
 )
 
-var ticketDao interfaces.TicketDAO
 var flightDao interfaces.FlightDAO
 var clientDao interfaces.ClientDAO
 var sessionDao interfaces.SessionDAO
-
-func GetTicketDAO() interfaces.TicketDAO {
-
-	if ticketDao == nil {
-		ticketDao = &MemoryTicketDAO{make(map[uuid.UUID]models.Ticket)}
-	}
-
-	return ticketDao
-}
 
 func GetFlightDAO() interfaces.FlightDAO {
 	if flightDao == nil {

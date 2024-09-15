@@ -90,14 +90,14 @@ func (dao *MemoryFlightDAO) FindById(id uuid.UUID) (*models.Flight, error) {
 		}
 	}
 
-	return nil, errors.New("Flight not found")
+	return nil, errors.New("flight not found")
 }
 
 func (dao *MemoryFlightDAO) FindBySource(id uuid.UUID) ([]*models.Flight, error) {
 	t, exists := dao.data[id]
 
 	if !exists {
-		return nil, errors.New("Airport not found")
+		return nil, errors.New("airport not found")
 	}
 
 	flights := make([]*models.Flight, 0, len(t))
@@ -113,7 +113,7 @@ func (dao *MemoryFlightDAO) FindBySourceAndDest(source uuid.UUID, dest uuid.UUID
 	t, exists := dao.data[source][dest]
 
 	if !exists {
-		return nil, errors.New("Flight not found")
+		return nil, errors.New("flight not found")
 	}
 
 	return &t, nil
@@ -153,5 +153,5 @@ func (dao *MemoryFlightDAO) BreadthFirstSearch(source uuid.UUID, dest uuid.UUID)
 		return path, nil
 	}
 
-	return nil, errors.New("No route available")
+	return path, errors.New("no route available")
 }
