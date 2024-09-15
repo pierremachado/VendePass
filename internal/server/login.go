@@ -103,6 +103,5 @@ func getUserBySessionToken(auth string, conn net.Conn) {
 	}
 
 	response.Data["user"] = client
-	fmt.Println(response.Data["user"])
 	WriteNewResponse(response, conn)
 }
