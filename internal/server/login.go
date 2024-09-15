@@ -49,7 +49,8 @@ func login(data interface{}, conn net.Conn) {
 	}
 
 	if passwordMatches(login, logCred.Password) {
-		session := &models.Session{Client: *login, LastTimeActive: time.Now()}
+
+		session := &models.Session{ClientID: login.Id, LastTimeActive: time.Now()}
 		dao.GetSessionDAO().Insert(session)
 
 		token := fmt.Sprintf("%s", session.ID)
@@ -60,6 +61,7 @@ func login(data interface{}, conn net.Conn) {
 		response.Error = "invalid credentials"
 	}
 	WriteNewResponse(response, conn)
+
 }
 
 func logout(auth string, conn net.Conn) {
@@ -77,5 +79,30 @@ func logout(auth string, conn net.Conn) {
 	dao.GetSessionDAO().Delete(session)
 
 	response.Data["msg"] = "logout succesfully made"
+	WriteNewResponse(response, conn)
+}
+
+func getUserBySessionToken(auth string, conn net.Conn) {
+	defer conn.Close()
+	response := models.Response{Data: make(map[string]interface{})}
+
+	session, exists := SessionIfExists(auth)
+
+	if !exists {
+		response.Error = "session not found"
+		WriteNewResponse(response, conn)
+		return
+	}
+
+	id := session.ClientID
+
+	client, err := dao.GetClientDAO().FindById(id)
+
+	if err != nil {
+		response.Error = "client not found"
+	}
+
+	response.Data["user"] = client
+	fmt.Println(response.Data["user"])
 	WriteNewResponse(response, conn)
 }

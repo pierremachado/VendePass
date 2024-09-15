@@ -23,6 +23,7 @@ type FlightDAO interface {
 	FindById(uuid.UUID) (*models.Flight, error)
 	FindBySource(uuid.UUID) ([]*models.Flight, error)
 	FindBySourceAndDest(uuid.UUID, uuid.UUID) (*models.Flight, error)
+	BreadthFirstSearch(source uuid.UUID, dest uuid.UUID) ([]*models.Flight, error)
 	New()
 }
 

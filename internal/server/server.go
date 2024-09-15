@@ -57,10 +57,14 @@ func handleRequest(request models.Request, conn net.Conn) {
 	switch request.Action {
 	case "login":
 		login(request.Data, conn)
+	case "get-user":
+		getUserBySessionToken(request.Auth, conn)
 	case "logout":
 		logout(request.Auth, conn)
 	case "all-routes":
 		AllRoutes(request.Auth, conn)
+	case "route":
+		Route(request.Auth, request.Data, conn)
 	}
 }
 
