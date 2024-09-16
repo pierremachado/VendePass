@@ -30,10 +30,10 @@ func (dao *MemoryFlightDAO) New() {
 
 	json.Unmarshal(b, &flights)
 
-	// for _, flight := range flights {
-	// 	dao.data[flight.SourceAirportId] = make(map[uuid.UUID]models.Flight)
-	// 	dao.data[flight.SourceAirportId][flight.DestAirportId] = flight
-	// }
+	for _, flight := range flights {
+		dao.data[flight.SourceAirportId] = make(map[uuid.UUID]models.Flight)
+		dao.data[flight.SourceAirportId][flight.DestAirportId] = flight
+	}
 }
 
 func (dao *MemoryFlightDAO) FindAll() []*models.Flight {
