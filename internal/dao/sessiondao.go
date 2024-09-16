@@ -59,3 +59,7 @@ func (dao *MemorySessionDAO) FindById(id uuid.UUID) (*models.Session, error) {
 
 	return &session, nil
 }
+
+func (dao *MemorySessionDAO) DeleteAll() {
+	dao.data = make(map[uuid.UUID]models.Session)
+}

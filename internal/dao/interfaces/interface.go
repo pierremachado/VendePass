@@ -7,7 +7,7 @@ import (
 )
 
 type FlightDAO interface {
-	FindAll() []models.Flight
+	FindAll() []*models.Flight
 	Insert(*models.Flight)
 	Update(*models.Flight) error
 	Delete(models.Flight) error
@@ -15,6 +15,7 @@ type FlightDAO interface {
 	FindBySource(uuid.UUID) ([]*models.Flight, error)
 	FindBySourceAndDest(uuid.UUID, uuid.UUID) (*models.Flight, error)
 	BreadthFirstSearch(source uuid.UUID, dest uuid.UUID) ([]*models.Flight, error)
+	DeleteAll()
 	New()
 }
 
@@ -32,6 +33,7 @@ type SessionDAO interface {
 	Insert(*models.Session)
 	Delete(models.Session)
 	FindById(uuid.UUID) (*models.Session, error)
+	DeleteAll()
 	New()
 }
 

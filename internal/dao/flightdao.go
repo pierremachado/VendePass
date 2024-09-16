@@ -30,19 +30,18 @@ func (dao *MemoryFlightDAO) New() {
 
 	json.Unmarshal(b, &flights)
 
-	for _, flight := range flights {
-		dao.data[flight.SourceAirportId] = make(map[uuid.UUID]models.Flight)
-		dao.data[flight.SourceAirportId][flight.DestAirportId] = flight
-	}
-
+	// for _, flight := range flights {
+	// 	dao.data[flight.SourceAirportId] = make(map[uuid.UUID]models.Flight)
+	// 	dao.data[flight.SourceAirportId][flight.DestAirportId] = flight
+	// }
 }
 
-func (dao *MemoryFlightDAO) FindAll() []models.Flight {
-	v := make([]models.Flight, 0, len(dao.data))
+func (dao *MemoryFlightDAO) FindAll() []*models.Flight {
+	v := make([]*models.Flight, 0, len(dao.data))
 
 	for _, array := range dao.data {
 		for _, flight := range array {
-			v = append(v, flight)
+			v = append(v, &flight)
 		}
 	}
 
@@ -54,18 +53,22 @@ func (dao *MemoryFlightDAO) Insert(t *models.Flight) {
 
 	t.Id = id
 
+	if dao.data[t.SourceAirportId] == nil {
+		dao.data[t.SourceAirportId] = make(map[uuid.UUID]models.Flight)
+	}
+
 	dao.data[t.SourceAirportId][t.DestAirportId] = *t
 }
 
 func (dao *MemoryFlightDAO) Update(t *models.Flight) error {
 
-	lastFlight, exists := dao.data[t.SourceAirportId][t.DestAirportId]
+	_, exists := dao.data[t.SourceAirportId][t.DestAirportId]
 
 	if !exists {
 		return errors.New("not found")
 	}
 
-	dao.data[t.SourceAirportId][t.DestAirportId] = lastFlight
+	dao.data[t.SourceAirportId][t.DestAirportId] = *t
 
 	return nil
 }
@@ -76,7 +79,7 @@ func (dao *MemoryFlightDAO) Delete(t models.Flight) error {
 	_, exists := dao.data[t.SourceAirportId][t.DestAirportId]
 
 	if exists {
-		return errors.New("Delete was unsuccessful")
+		return errors.New("delete was unsuccessful")
 	}
 
 	return nil
@@ -144,15 +147,22 @@ func (dao *MemoryFlightDAO) BreadthFirstSearch(source uuid.UUID, dest uuid.UUID)
 	}
 
 	path := []*models.Flight{}
+	current := dest
 
-	for current := dest; parent[current] != source; current = parent[current] {
-		flight := dao.data[parent[current]][current]
+	if !visited[dest] {
+		return nil, errors.New("no route available")
+	}
+
+	for current != source {
+		prev := parent[current]
+		flight := dao.data[prev][current]
 		path = append([]*models.Flight{&flight}, path...)
+		current = prev
 	}
 
-	if len(path) != 0 {
-		return path, nil
-	}
+	return path, nil
+}
 
-	return nil, errors.New("no route available")
+func (dao *MemoryFlightDAO) DeleteAll() {
+	dao.data = make(map[uuid.UUID]map[uuid.UUID]models.Flight)
 }
