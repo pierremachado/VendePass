@@ -19,6 +19,7 @@ func main() {
 	http.HandleFunc("/login", handleLogin)
 	http.HandleFunc("/logout", handleLogout)
 	http.HandleFunc("/user", handleGetUser)
+	http.HandleFunc("/route", handleGetRoute)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
 
@@ -31,6 +32,29 @@ func allowCrossOrigin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+}
+
+func handleGetRoute(w http.ResponseWriter, r *http.Request) {
+	allowCrossOrigin(w, r)
+	if r.Method != http.MethodGet {
+		http.Error(w, "only GET allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	queryParams := r.URL.Query()
+
+	src := queryParams.Get("src")
+	dest := queryParams.Get("dest")
+
+	token := r.Header.Get("Authorization")
+	writeAndReturnResponse(w, models.Request{
+		Action: "route",
+		Auth:   token,
+		Data: models.RouteRequest{
+			Source: src,
+			Dest:   dest,
+		},
+	})
+
 }
 
 func handleGetUser(w http.ResponseWriter, r *http.Request) {

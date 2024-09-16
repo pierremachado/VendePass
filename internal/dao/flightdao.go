@@ -31,7 +31,8 @@ func (dao *MemoryFlightDAO) New() {
 	json.Unmarshal(b, &flights)
 
 	for _, flight := range flights {
-		dao.data[flight.Source.Id][flight.Dest.Id] = flight
+		dao.data[flight.SourceAirportId] = make(map[uuid.UUID]models.Flight)
+		dao.data[flight.SourceAirportId][flight.DestAirportId] = flight
 	}
 
 }
@@ -53,26 +54,26 @@ func (dao *MemoryFlightDAO) Insert(t *models.Flight) {
 
 	t.Id = id
 
-	dao.data[t.Source.Id][t.Dest.Id] = *t
+	dao.data[t.SourceAirportId][t.DestAirportId] = *t
 }
 
 func (dao *MemoryFlightDAO) Update(t *models.Flight) error {
 
-	lastFlight, exists := dao.data[t.Source.Id][t.Dest.Id]
+	lastFlight, exists := dao.data[t.SourceAirportId][t.DestAirportId]
 
 	if !exists {
 		return errors.New("not found")
 	}
 
-	dao.data[t.Source.Id][t.Dest.Id] = lastFlight
+	dao.data[t.SourceAirportId][t.DestAirportId] = lastFlight
 
 	return nil
 }
 
 func (dao *MemoryFlightDAO) Delete(t models.Flight) error {
-	delete(dao.data[t.Source.Id], t.Dest.Id)
+	delete(dao.data[t.SourceAirportId], t.DestAirportId)
 
-	_, exists := dao.data[t.Source.Id][t.Dest.Id]
+	_, exists := dao.data[t.SourceAirportId][t.DestAirportId]
 
 	if exists {
 		return errors.New("Delete was unsuccessful")

@@ -5,9 +5,9 @@ import (
 )
 
 type Flight struct {
-	Id         uuid.UUID
-	Source     Airport
-	Dest       Airport
-	Passengers []Ticket
-	Seats      uint
+	Id              uuid.UUID
+	SourceAirportId uuid.UUID
+	DestAirportId   uuid.UUID
+	Passengers      []Ticket
+	Seats           uint
 }

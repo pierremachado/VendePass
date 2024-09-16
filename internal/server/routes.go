@@ -2,11 +2,10 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
 	"vendepass/internal/dao"
 	"vendepass/internal/models"
-
-	"github.com/google/uuid"
 )
 
 func AllRoutes(auth string, conn net.Conn) {
@@ -47,17 +46,19 @@ func Route(auth string, data interface{}, conn net.Conn) {
 	jsonData, _ := json.Marshal(data)
 	json.Unmarshal(jsonData, &routeRequest)
 
-	source, errsource := uuid.Parse(routeRequest.Source)
-	dest, errdest := uuid.Parse(routeRequest.Dest)
+	fmt.Println(routeRequest.Source, routeRequest.Dest)
 
-	if errsource != nil || errdest != nil {
+	src := dao.GetAirportDAO().FindByName(routeRequest.Source)
+	dest := dao.GetAirportDAO().FindByName(routeRequest.Dest)
+
+	if src == nil || dest == nil {
 		WriteNewResponse(models.Response{
-			Error: "not uuid",
+			Error: "not valid city name",
 		}, conn)
 		return
 	}
 
-	route, err := dao.GetFlightDAO().FindBySourceAndDest(source, dest)
+	route, err := dao.GetFlightDAO().FindBySourceAndDest(src.Id, dest.Id)
 	if err != nil {
 		response.Error = "no route"
 	} else {

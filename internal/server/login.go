@@ -76,7 +76,7 @@ func logout(auth string, conn net.Conn) {
 		return
 	}
 
-	dao.GetSessionDAO().Delete(session)
+	dao.GetSessionDAO().Delete(*session)
 
 	response.Data["msg"] = "logout succesfully made"
 	WriteNewResponse(response, conn)

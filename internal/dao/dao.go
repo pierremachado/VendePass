@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+var airportDao interfaces.AirportDAO
 var flightDao interfaces.FlightDAO
 var clientDao interfaces.ClientDAO
 var sessionDao interfaces.SessionDAO
@@ -14,6 +15,7 @@ var sessionDao interfaces.SessionDAO
 func GetFlightDAO() interfaces.FlightDAO {
 	if flightDao == nil {
 		flightDao = &MemoryFlightDAO{make(map[uuid.UUID]map[uuid.UUID]models.Flight)}
+		flightDao.New()
 	}
 
 	return flightDao
@@ -30,9 +32,18 @@ func GetClientDAO() interfaces.ClientDAO {
 
 func GetSessionDAO() interfaces.SessionDAO {
 	if sessionDao == nil {
-		sessionDao = &MemorySessionDAO{make(map[uuid.UUID]*models.Session)}
+		sessionDao = &MemorySessionDAO{make(map[uuid.UUID]models.Session)}
 		sessionDao.New()
 	}
 
 	return sessionDao
+}
+
+func GetAirportDAO() interfaces.AirportDAO {
+	if airportDao == nil {
+		airportDao = &MemoryAirportDAO{make(map[uuid.UUID]models.Airport)}
+		airportDao.New()
+	}
+
+	return airportDao
 }

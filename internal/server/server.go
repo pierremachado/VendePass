@@ -47,7 +47,7 @@ func CleanupSessions(timeout time.Duration) {
 		for _, session := range dao.GetSessionDAO().FindAll() {
 			if time.Since(session.LastTimeActive) > timeout {
 				fmt.Printf("Encerrando sessão %s por inatividade\n", session.ID)
-				dao.GetSessionDAO().Delete(session)
+				dao.GetSessionDAO().Delete(*session)
 			}
 		}
 	}
@@ -95,6 +95,8 @@ func SessionIfExists(token string) (*models.Session, bool) {
 	if err != nil {
 		return nil, false
 	}
+
+	session.LastTimeActive = time.Now()
 
 	return session, true
 }
