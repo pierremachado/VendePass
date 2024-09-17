@@ -1,0 +1,60 @@
+.wishlist {
+    background-color: var(--grey);
+    height: 100%;
+    border-radius: 16px;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.wishlist h2 {
+    font-weight: 400;
+}
+
+.wishes {
+    margin-top: 1rem;
+    height: 70%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.wish {
+    background-color: var(--default-bg);
+    padding: .8rem;
+    border-radius: 8px;
+    box-shadow: 0px 2px 16px 0px rgba(0, 0, 0, 0.1);
+}
+
+.wish p{
+    font-weight: 400;
+    font-size:small
+}
+
+.wish h4{
+    font-weight: 600;
+    font-size: medium;
+    display: flex;
+    gap: .2rem;
+}
+
+.add-to-cart {
+    width: 100%;
+    background-color: var(--blue);
+    border: none;
+    border-radius: 4px;
+    padding: .5rem;
+    text-transform: uppercase;
+    color: var(--default-bg);
+    font-weight: 500;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6);
+}
+
+.full {
+    background-color: red;
+}

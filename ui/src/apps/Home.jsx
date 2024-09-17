@@ -55,6 +55,7 @@ const Home = () => {
         if (source && destination) {
             if (source === destination) {
                 notify();
+                setPath([]);
                 return;
             }
             const getRoute = async () => {
@@ -70,6 +71,8 @@ const Home = () => {
                     });
                     if (response.data.Error !== "") {
                         notify();
+                        setPath([]);
+                        return;
                     }
                     setPath(response.data.Data.path);
                 } catch (error) {
@@ -79,6 +82,8 @@ const Home = () => {
             getRoute();
         }
     }, [source, destination]);
+
+    useEffect(() => console.log(path), [path])
 
     useEffect(() => {
         fetchUserData();
