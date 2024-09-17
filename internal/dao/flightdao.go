@@ -12,7 +12,7 @@ import (
 )
 
 type MemoryFlightDAO struct {
-	data map[uuid.UUID]map[uuid.UUID]models.Flight
+	data map[uuid.UUID]map[uuid.UUID]*models.Flight
 }
 
 func (dao *MemoryFlightDAO) New() {
@@ -26,13 +26,21 @@ func (dao *MemoryFlightDAO) New() {
 
 	b, _ := os.ReadFile(jsonPath)
 
-	var flights []models.Flight
+	var flights []models.FlightJSON
 
 	json.Unmarshal(b, &flights)
 
-	for _, flight := range flights {
-		dao.data[flight.SourceAirportId] = make(map[uuid.UUID]models.Flight)
-		dao.data[flight.SourceAirportId][flight.DestAirportId] = flight
+	for _, f := range flights {
+		flight := models.Flight{
+			Id:              f.Id,
+			SourceAirportId: f.SourceAirportId,
+			DestAirportId:   f.DestAirportId,
+			Passengers:      f.Passengers,
+			Seats:           f.Seats,
+			Queue:           make(chan *models.Session, 10),
+		}
+		dao.data[flight.SourceAirportId] = make(map[uuid.UUID]*models.Flight)
+		dao.data[flight.SourceAirportId][flight.DestAirportId] = &flight
 	}
 }
 
@@ -41,7 +49,7 @@ func (dao *MemoryFlightDAO) FindAll() []*models.Flight {
 
 	for _, array := range dao.data {
 		for _, flight := range array {
-			v = append(v, &flight)
+			v = append(v, flight)
 		}
 	}
 
@@ -54,10 +62,10 @@ func (dao *MemoryFlightDAO) Insert(t *models.Flight) {
 	t.Id = id
 
 	if dao.data[t.SourceAirportId] == nil {
-		dao.data[t.SourceAirportId] = make(map[uuid.UUID]models.Flight)
+		dao.data[t.SourceAirportId] = make(map[uuid.UUID]*models.Flight)
 	}
 
-	dao.data[t.SourceAirportId][t.DestAirportId] = *t
+	dao.data[t.SourceAirportId][t.DestAirportId] = t
 }
 
 func (dao *MemoryFlightDAO) Update(t *models.Flight) error {
@@ -68,7 +76,7 @@ func (dao *MemoryFlightDAO) Update(t *models.Flight) error {
 		return errors.New("not found")
 	}
 
-	dao.data[t.SourceAirportId][t.DestAirportId] = *t
+	dao.data[t.SourceAirportId][t.DestAirportId] = t
 
 	return nil
 }
@@ -89,7 +97,7 @@ func (dao *MemoryFlightDAO) FindById(id uuid.UUID) (*models.Flight, error) {
 	for _, array := range dao.data {
 		for _, flight := range array {
 			if flight.Id == id {
-				return &flight, nil
+				return flight, nil
 			}
 		}
 	}
@@ -107,7 +115,7 @@ func (dao *MemoryFlightDAO) FindBySource(id uuid.UUID) ([]*models.Flight, error)
 	flights := make([]*models.Flight, 0, len(t))
 
 	for _, flight := range t {
-		flights = append(flights, &flight)
+		flights = append(flights, flight)
 	}
 
 	return flights, nil
@@ -120,7 +128,7 @@ func (dao *MemoryFlightDAO) FindBySourceAndDest(source uuid.UUID, dest uuid.UUID
 		return nil, errors.New("flight not found")
 	}
 
-	return &t, nil
+	return t, nil
 }
 
 func (dao *MemoryFlightDAO) BreadthFirstSearch(source uuid.UUID, dest uuid.UUID) ([]*models.Flight, error) {
@@ -156,7 +164,7 @@ func (dao *MemoryFlightDAO) BreadthFirstSearch(source uuid.UUID, dest uuid.UUID)
 	for current != source {
 		prev := parent[current]
 		flight := dao.data[prev][current]
-		path = append([]*models.Flight{&flight}, path...)
+		path = append([]*models.Flight{flight}, path...)
 		current = prev
 	}
 
@@ -164,5 +172,5 @@ func (dao *MemoryFlightDAO) BreadthFirstSearch(source uuid.UUID, dest uuid.UUID)
 }
 
 func (dao *MemoryFlightDAO) DeleteAll() {
-	dao.data = make(map[uuid.UUID]map[uuid.UUID]models.Flight)
+	dao.data = make(map[uuid.UUID]map[uuid.UUID]*models.Flight)
 }

@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"sync"
 	"vendepass/internal/dao/interfaces"
 	"vendepass/internal/models"
 
@@ -14,7 +15,7 @@ var sessionDao interfaces.SessionDAO
 
 func GetFlightDAO() interfaces.FlightDAO {
 	if flightDao == nil {
-		flightDao = &MemoryFlightDAO{make(map[uuid.UUID]map[uuid.UUID]models.Flight)}
+		flightDao = &MemoryFlightDAO{make(map[uuid.UUID]map[uuid.UUID]*models.Flight)}
 		flightDao.New()
 	}
 
@@ -32,7 +33,9 @@ func GetClientDAO() interfaces.ClientDAO {
 
 func GetSessionDAO() interfaces.SessionDAO {
 	if sessionDao == nil {
-		sessionDao = &MemorySessionDAO{make(map[uuid.UUID]models.Session)}
+		sessionDao = &MemorySessionDAO{
+			data: make(map[uuid.UUID]*models.Session),
+			mu:   sync.RWMutex{}}
 		sessionDao.New()
 	}
 

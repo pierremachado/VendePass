@@ -64,13 +64,13 @@ func Route(auth string, data interface{}, conn net.Conn) {
 		cities_path := make([]models.Route, len(path))
 		for i, flight := range path {
 			cities_path[i].Path = make([]models.City, 2)
+			cities_path[i].FlightId = flight.Id
 			srcById, _ := dao.GetAirportDAO().FindById(flight.SourceAirportId)
 			cities_path[i].Path[0] = srcById.City
 			destById, _ := dao.GetAirportDAO().FindById(flight.DestAirportId)
 			cities_path[i].Path[1] = destById.City
-			cities_path[i].FlightId = flight.Id
 		}
-		fmt.Println(cities_path)
+
 		response.Data = map[string]interface{}{
 			"path": cities_path,
 		}
@@ -116,6 +116,8 @@ func Flights(auth string, data interface{}, conn net.Conn) {
 		flightresponse["Dest"] = dest.City.Name
 		responseData[i] = flightresponse
 	}
+
+	fmt.Println(responseData)
 
 	WriteNewResponse(models.Response{
 		Data: map[string]interface{}{
