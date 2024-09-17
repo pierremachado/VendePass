@@ -1,0 +1,70 @@
+.login-container {
+
+    box-sizing: border-box;
+    
+    position: absolute;
+    left: 74px;
+    top: 80px;
+    width: 350px;
+    height: 450px;
+    
+    background: rgba(227, 233, 237, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(15.9px);
+    border-radius: 20px;
+
+    display: flex;
+    flex-direction: column;
+    padding: 3rem;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.login {
+    background: url("../assets/plane.jpg");
+    background-repeat: no-repeat;
+    background-position:bottom;
+    background-size: cover;
+    height: 100vh;
+}
+
+.button {
+    background: var(--blue);
+    border-radius: 10px;
+    outline: none;
+    border: none;
+    color: var(--default-bg);
+    font-weight: 400;
+    padding: .5rem 5rem;
+    width: fit-content;
+    transition: .2s ease-in-out;
+}
+
+.disabled {
+    background: var(--grey-hover);
+}
+
+.login-input {
+    outline: none;
+    border: none;
+    box-shadow: 0px 2px 16px 0px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: .5rem 0 .5rem 1rem;
+}
+
+.username-group, .password-group {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.button:not(.disabled):hover {
+    background-color: #1a4e80;
+}
+
+.advice {
+    font-weight: 400;
+    padding: 0;
+    margin: 0;
+}
