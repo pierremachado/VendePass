@@ -103,35 +103,28 @@ func TestConcurrentUpdates(t *testing.T) {
 
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	cond := sync.NewCond(&mu)
-	start := false
-	numGoroutines := 10
+	startCh := make(chan struct{})
+	numGoroutines := 100000
 	wg.Add(numGoroutines)
 
 	for i := 0; i < numGoroutines; i++ {
 		go func(Id uuid.UUID) {
 			defer wg.Done()
 
-			mu.Lock()
-			for !start {
-				cond.Wait()
-			}
-			mu.Unlock()
+			<-startCh
 
+			mu.Lock()
 			session1.ClientID = Id
 			t.Logf("%v: %v", time.Now(), session1.ClientID)
 			sessions.Update(session1)
+			mu.Unlock()
 		}(uuid.New())
 	}
 
-	mu.Lock()
-	start = true
-	cond.Broadcast()
-	mu.Unlock()
+	close(startCh)
 
 	wg.Wait()
 
 	finalState, _ := sessions.FindById(session1.ID)
-
 	t.Logf("Final state: %s", finalState.ClientID)
 }

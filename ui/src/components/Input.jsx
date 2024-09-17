@@ -2,6 +2,10 @@ import React from "react";
 import "./input.css";
 import capitals from "../../brazilcapitals.json";
 const Input = ({ placeholder, img, value, setValue }) => {
+
+    let capitals_names = Object.keys(capitals)
+    capitals_names.sort()
+
     return (
         <div className="input">
             <img src={img} alt="" height={"20px"} />
@@ -13,7 +17,7 @@ const Input = ({ placeholder, img, value, setValue }) => {
                 <option value="" disabled>
                     {placeholder}
                 </option>
-                {Object.keys(capitals).map((capital, i) => (
+                {capitals_names.map((capital, i) => (
                     <option key={i} value={capital}>
                         {capital}
                     </option>

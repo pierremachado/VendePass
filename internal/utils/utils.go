@@ -18,3 +18,5 @@ func Find[T any](items []T, pred func(T) bool) *T {
 	}
 	return nil
 }
+
+
