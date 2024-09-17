@@ -65,6 +65,8 @@ func handleRequest(request models.Request, conn net.Conn) {
 		AllRoutes(request.Auth, conn)
 	case "route":
 		Route(request.Auth, request.Data, conn)
+	case "flights":
+		Flights(request.Auth, request.Data, conn)
 	}
 }
 
@@ -95,8 +97,7 @@ func SessionIfExists(token string) (*models.Session, bool) {
 	if err != nil {
 		return nil, false
 	}
-
 	session.LastTimeActive = time.Now()
-
+	dao.GetSessionDAO().Update(session)
 	return session, true
 }

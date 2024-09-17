@@ -65,13 +65,13 @@ func (dao *MemoryAirportDAO) Insert(t *models.Airport) {
 
 func (dao *MemoryAirportDAO) Update(t *models.Airport) error {
 
-	lastAirport, exists := dao.data[t.Id]
+	_, exists := dao.data[t.Id]
 
 	if !exists {
 		return errors.New("not found")
 	}
 
-	dao.data[t.Id] = lastAirport
+	dao.data[t.Id] = *t
 
 	return nil
 }

@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/logout", handleLogout)
 	http.HandleFunc("/user", handleGetUser)
 	http.HandleFunc("/route", handleGetRoute)
+	http.HandleFunc("/flights", handleGetFlights)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
 
@@ -32,6 +33,32 @@ func allowCrossOrigin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+}
+
+func handleGetFlights(w http.ResponseWriter, r *http.Request) {
+	allowCrossOrigin(w, r)
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "only GET allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	token := r.Header.Get("Authorization")
+
+	var flightIds models.FlightsRequest
+
+	err := json.NewDecoder(r.Body).Decode(&flightIds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	writeAndReturnResponse(w, models.Request{
+		Action: "flights",
+		Auth:   token,
+		Data:   flightIds,
+	})
+
 }
 
 func handleGetRoute(w http.ResponseWriter, r *http.Request) {

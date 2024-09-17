@@ -1,5 +1,10 @@
 package models
 
+import (
+	"github.com/google/uuid"
+)
+
 type Route struct {
-	Route []*Flight
+	Path     []City
+	FlightId uuid.UUID
 }

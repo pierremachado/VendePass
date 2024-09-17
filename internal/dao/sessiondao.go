@@ -35,13 +35,13 @@ func (dao *MemorySessionDAO) Insert(t *models.Session) {
 
 func (dao *MemorySessionDAO) Update(t *models.Session) error {
 
-	lastSession, exists := dao.data[t.ID]
+	_, exists := dao.data[t.ID]
 
 	if !exists {
 		return errors.New("not found")
 	}
 
-	dao.data[t.ID] = lastSession
+	dao.data[t.ID] = *t
 
 	return nil
 }

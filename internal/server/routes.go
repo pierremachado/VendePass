@@ -46,8 +46,6 @@ func Route(auth string, data interface{}, conn net.Conn) {
 	jsonData, _ := json.Marshal(data)
 	json.Unmarshal(jsonData, &routeRequest)
 
-	fmt.Println(routeRequest.Source, routeRequest.Dest)
-
 	src := dao.GetAirportDAO().FindByName(routeRequest.Source)
 	dest := dao.GetAirportDAO().FindByName(routeRequest.Dest)
 
@@ -58,15 +56,70 @@ func Route(auth string, data interface{}, conn net.Conn) {
 		return
 	}
 
-	route, err := dao.GetFlightDAO().FindBySourceAndDest(src.Id, dest.Id)
-	if err != nil {
+	// route, err := dao.GetFlightDAO().FindBySourceAndDest(src.Id, dest.Id)
+	path, path_err := dao.GetFlightDAO().BreadthFirstSearch(src.Id, dest.Id)
+	if path_err != nil {
 		response.Error = "no route"
 	} else {
-		response.Data = map[string]interface{}{
-			"route": route,
+		cities_path := make([]models.Route, len(path))
+		for i, flight := range path {
+			cities_path[i].Path = make([]models.City, 2)
+			srcById, _ := dao.GetAirportDAO().FindById(flight.SourceAirportId)
+			cities_path[i].Path[0] = srcById.City
+			destById, _ := dao.GetAirportDAO().FindById(flight.DestAirportId)
+			cities_path[i].Path[1] = destById.City
+			cities_path[i].FlightId = flight.Id
 		}
+		fmt.Println(cities_path)
+		response.Data = map[string]interface{}{
+			"path": cities_path,
+		}
+
 	}
 
 	WriteNewResponse(response, conn)
 
+}
+
+func Flights(auth string, data interface{}, conn net.Conn) {
+	_, exists := SessionIfExists(auth)
+
+	if !exists {
+		WriteNewResponse(models.Response{
+			Error: "not authorized",
+		}, conn)
+		return
+	}
+
+	var flightsRequest models.FlightsRequest
+
+	jsonData, _ := json.Marshal(data)
+	json.Unmarshal(jsonData, &flightsRequest)
+
+	responseData := make([]map[string]interface{}, len(flightsRequest.FlightIds))
+
+	for i, id := range flightsRequest.FlightIds {
+		flightresponse := make(map[string]interface{})
+		flight, err := dao.GetFlightDAO().FindById(id)
+		if err != nil {
+			WriteNewResponse(models.Response{
+				Error: fmt.Sprintf("some flight doesnt exists: ", id),
+			}, conn)
+			return
+		}
+
+		src, _ := dao.GetAirportDAO().FindById(flight.SourceAirportId)
+		dest, _ := dao.GetAirportDAO().FindById(flight.DestAirportId)
+
+		flightresponse["Seats"] = flight.Seats
+		flightresponse["Src"] = src.City.Name
+		flightresponse["Dest"] = dest.City.Name
+		responseData[i] = flightresponse
+	}
+
+	WriteNewResponse(models.Response{
+		Data: map[string]interface{}{
+			"Flights": responseData,
+		},
+	}, conn)
 }
