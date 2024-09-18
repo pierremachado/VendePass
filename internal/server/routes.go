@@ -6,6 +6,8 @@ import (
 	"net"
 	"vendepass/internal/dao"
 	"vendepass/internal/models"
+
+	"github.com/google/uuid"
 )
 
 func AllRoutes(auth string, conn net.Conn) {
@@ -96,16 +98,28 @@ func Flights(auth string, data interface{}, conn net.Conn) {
 	jsonData, _ := json.Marshal(data)
 	json.Unmarshal(jsonData, &flightsRequest)
 
-	responseData := make([]map[string]interface{}, len(flightsRequest.FlightIds))
+	responseData, err := getRoute(flightsRequest.FlightIds)
+	if err != nil {
+		WriteNewResponse(models.Response{
+			Error: err.Error(),
+		}, conn)
+	}
 
-	for i, id := range flightsRequest.FlightIds {
+	WriteNewResponse(models.Response{
+		Data: map[string]interface{}{
+			"Flights": responseData,
+		},
+	}, conn)
+}
+
+func getRoute(flightIds []uuid.UUID) ([]map[string]interface{}, error) {
+	responseData := make([]map[string]interface{}, len(flightIds))
+	for i, id := range flightIds {
 		flightresponse := make(map[string]interface{})
 		flight, err := dao.GetFlightDAO().FindById(id)
 		if err != nil {
-			WriteNewResponse(models.Response{
-				Error: fmt.Sprintf("some flight doesnt exists: ", id),
-			}, conn)
-			return
+
+			return nil, fmt.Errorf("some flight doesnt exists: %s", id)
 		}
 
 		src, _ := dao.GetAirportDAO().FindById(flight.SourceAirportId)
@@ -116,12 +130,5 @@ func Flights(auth string, data interface{}, conn net.Conn) {
 		flightresponse["Dest"] = dest.City.Name
 		responseData[i] = flightresponse
 	}
-
-	fmt.Println(responseData)
-
-	WriteNewResponse(models.Response{
-		Data: map[string]interface{}{
-			"Flights": responseData,
-		},
-	}, conn)
+	return responseData, nil
 }

@@ -4,16 +4,36 @@ import { url } from "../main";
 import "./wishlist.css";
 import arrow from "../assets/arrow-right.svg";
 import cart from "../assets/cart.svg";
-const Wishlist = ({ paths }) => {
+
+const Wishlist = ({ paths, setPaths }) => {
     const [flights, setFlights] = useState([]);
-    const [status, setStatus] = useState("");
+
+    const findFlights = async () => {
+        if (!paths) return;
+
+        const flightIds = paths.map((route) => route.FlightId);
+        try {
+            const response = await axios.post(
+                `${url}/flights`,
+                { FlightIds: flightIds },
+                {
+                    headers: {
+                        Authorization: `${sessionStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            setFlights(response.data.Data.Flights);
+        } catch (error) {
+            console.error("Error fetching flights:", error);
+        }
+    };
+
     const handleReservation = async () => {
         try {
             const response = await axios.post(
                 url + "/reservation",
-                {
-                    data: paths.map((route) => route.FlightId),
-                },
+                { FlightIds: paths.map((route) => route.FlightId) },
                 {
                     headers: {
                         Authorization: sessionStorage.getItem("token"),
@@ -22,32 +42,16 @@ const Wishlist = ({ paths }) => {
             );
 
             if (response.data.Error != "") {
+                setFlights(response.data.Data.Flights);
                 return;
             }
+            setPaths([]);
+            
         } catch (error) {}
     };
 
+
     useEffect(() => {
-        const findFlights = async () => {
-            if (!paths) return;
-
-            const flightIds = paths.map((route) => route.FlightId);
-            try {
-                const response = await axios.post(
-                    `${url}/flights`,
-                    { FlightIds: flightIds },
-                    {
-                        headers: {
-                            Authorization: `${sessionStorage.getItem("token")}`,
-                        },
-                    }
-                );
-
-                setFlights(response.data.Data.Flights);
-            } catch (error) {
-                console.error("Error fetching flights:", error);
-            }
-        };
         findFlights();
     }, [paths]);
 
@@ -59,7 +63,7 @@ const Wishlist = ({ paths }) => {
                 {flights &&
                     flights.map((flight, i) => (
                         <div
-                            className={`wish full ${flight.Seats <= 0 && "full"}`}
+                            className={`wish ${flight.Seats <= 0 && "full"}`}
                             key={i}
                         >
                             <h4>

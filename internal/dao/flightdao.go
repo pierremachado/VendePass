@@ -45,8 +45,7 @@ func (dao *MemoryFlightDAO) New() {
 }
 
 func (dao *MemoryFlightDAO) FindAll() []*models.Flight {
-	v := make([]*models.Flight, 0, len(dao.data))
-
+	var v []*models.Flight
 	for _, array := range dao.data {
 		for _, flight := range array {
 			v = append(v, flight)
@@ -66,6 +65,7 @@ func (dao *MemoryFlightDAO) Insert(t *models.Flight) {
 	}
 
 	dao.data[t.SourceAirportId][t.DestAirportId] = t
+	t.Queue = make(chan *models.Session)
 }
 
 func (dao *MemoryFlightDAO) Update(t *models.Flight) error {
@@ -81,7 +81,7 @@ func (dao *MemoryFlightDAO) Update(t *models.Flight) error {
 	return nil
 }
 
-func (dao *MemoryFlightDAO) Delete(t models.Flight) error {
+func (dao *MemoryFlightDAO) Delete(t *models.Flight) error {
 	delete(dao.data[t.SourceAirportId], t.DestAirportId)
 
 	_, exists := dao.data[t.SourceAirportId][t.DestAirportId]

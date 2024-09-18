@@ -21,6 +21,8 @@ func main() {
 	http.HandleFunc("/user", handleGetUser)
 	http.HandleFunc("/route", handleGetRoute)
 	http.HandleFunc("/flights", handleGetFlights)
+	http.HandleFunc("/reservation", handleMakeReservations)
+	http.HandleFunc("/cart", handleGetCart)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
 
@@ -33,6 +35,48 @@ func allowCrossOrigin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+}
+
+func handleGetCart(w http.ResponseWriter, r *http.Request) {
+	allowCrossOrigin(w, r)
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "only GET allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	token := r.Header.Get("Authorization")
+
+	writeAndReturnResponse(w, models.Request{
+		Action: "cart",
+		Auth:   token,
+	})
+
+}
+
+func handleMakeReservations(w http.ResponseWriter, r *http.Request) {
+	allowCrossOrigin(w, r)
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "only POST allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	token := r.Header.Get("Authorization")
+
+	var flightIds models.FlightsRequest
+
+	err := json.NewDecoder(r.Body).Decode(&flightIds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	writeAndReturnResponse(w, models.Request{
+		Action: "reservation",
+		Auth:   token,
+		Data:   flightIds,
+	})
+
 }
 
 func handleGetFlights(w http.ResponseWriter, r *http.Request) {

@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"time"
+	"vendepass/internal/dao"
 	"vendepass/internal/server"
 )
 
@@ -24,6 +25,10 @@ func main() {
 	fmt.Println("servidor ouvindo na porta :8080")
 
 	go server.CleanupSessions(timeLimit)
+
+	for _, flight := range dao.GetFlightDAO().FindAll() {
+		go flight.ProcessReservations()
+	}
 
 	for {
 		conn, err := listener.Accept()

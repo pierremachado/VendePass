@@ -77,9 +77,17 @@ func logout(auth string, conn net.Conn) {
 	}
 
 	dao.GetSessionDAO().Delete(*session)
+	removeReservations(session)
 
 	response.Data["msg"] = "logout succesfully made"
 	WriteNewResponse(response, conn)
+}
+
+func removeReservations(session *models.Session) {
+	for _, res := range session.Reservations {
+		flight, _ := dao.GetFlightDAO().FindById(res.FlightId)
+		flight.Seats++
+	}
 }
 
 func getUserBySessionToken(auth string, conn net.Conn) {

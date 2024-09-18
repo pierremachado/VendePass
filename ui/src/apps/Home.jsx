@@ -17,6 +17,7 @@ import Tickets from "../components/Tickets";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Wishlist from "../components/Wishlist";
+import Cart from "../components/Cart";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -83,8 +84,6 @@ const Home = () => {
         }
     }, [source, destination]);
 
-    useEffect(() => console.log(path), [path])
-
     useEffect(() => {
         fetchUserData();
     }, []);
@@ -96,15 +95,8 @@ const Home = () => {
             case 1:
                 return <Tickets tickets={tickets} />;
             case 2:
-                return (
-                    <div
-                        style={{
-                            backgroundColor: "green",
-                            width: "100%",
-                            height: "100%",
-                        }}
-                    ></div>
-                );
+                return <Cart />
+                
             case 3:
                 return <div className="home-img" />;
         }
@@ -166,7 +158,7 @@ const Home = () => {
                         </div>
                         <div className="col main-col">{changeScreen()}</div>
                         <div className="col right-col">
-                            <Wishlist paths={path}/>
+                            <Wishlist paths={path} setPaths={setPath}/>
                         </div>
                     </div>
                 </div>

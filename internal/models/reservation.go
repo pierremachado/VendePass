@@ -9,5 +9,5 @@ import (
 type Reservation struct {
 	Id        uuid.UUID
 	CreatedAt time.Time
-	Ticket
+	*Ticket
 }

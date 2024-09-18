@@ -21,8 +21,6 @@ const MyMap = ({ paths }) => {
         ...data,
     }));
 
-    // console.log(paths)
-
     return (
         <>
             <MapContainer

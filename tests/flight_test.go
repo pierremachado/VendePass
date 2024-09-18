@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 	"vendepass/internal/dao"
 	"vendepass/internal/models"
@@ -49,12 +48,7 @@ func TestFindAllFlights(t *testing.T) {
 
 	flightDAO.Insert(flight1)
 	flightDAO.Insert(flight2)
-
 	flights := flightDAO.FindAll()
-
-	for _, flight := range flights {
-		fmt.Println(flight.Seats)
-	}
 
 	assert.Equal(t, 2, len(flights), "expected 2 flights, got: %d", len(flights))
 	assert.Contains(t, flights, flight1, "expected flight1 to be in the list")
@@ -103,7 +97,7 @@ func TestDeleteFlight(t *testing.T) {
 
 	flightDAO.Insert(flight)
 
-	err := flightDAO.Delete(*flight)
+	err := flightDAO.Delete(flight)
 
 	assert.NoError(t, err, "expected no error, got: %v", err)
 
