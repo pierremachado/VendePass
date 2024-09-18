@@ -6,7 +6,6 @@
     align-items: center;
     gap: 1rem;
     padding: 1rem;
-    margin-bottom: 1rem;
 }
 
 .route-input {
@@ -14,6 +13,7 @@
     border: none;
     background-color: inherit;
     outline: none;
+    font-style: italic;
 }
 
 ::-webkit-input-placeholder {

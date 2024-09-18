@@ -4,7 +4,7 @@ import { url } from '../main';
 import src from "../assets/src.svg"
 import arrow from "../assets/arrow-right.svg"
 import "./ticket.css"
-
+import trash from "../assets/trash.svg"
 const Tickets = () => {
   const [tickets, setTickets] = useState([]);
 
@@ -14,6 +14,22 @@ const Tickets = () => {
     });
     setTickets(response.data.Data.Tickets);
     console.log(response.data.Data.Tickets);
+  };
+
+  const deleteTickets = async (id) => {
+    console.log(id)
+    try {
+        const response = await axios.delete(`${url}/ticket`, {
+            data: { TicketId: id },
+            headers: { Authorization: sessionStorage.getItem("token") }
+        });
+
+        if (response.data.Error === "") {
+            setTickets(tickets.filter(ticket => ticket.Id !== id));
+        }
+    } catch (error) {
+        console.error('Error deleting ticket:', error);
+    }
   };
 
   useEffect(() => {
@@ -33,17 +49,12 @@ const Tickets = () => {
                  <h4>
                 {ticket.Dest.Name}
                 </h4>
-                
+                <img src={trash} width={"24px"} onClick={() => deleteTickets(ticket.Id)} className="delete" />
             </div>
         ))}
     </div>
     
 </div>
-    // <div className='tickets'>
-    //     {tickets.map((ticket, i) => (
-    //        <span className="ticket-row" key={i}>{ticket}</span> 
-    //     ))}
-    // </div>
   )
 }
 

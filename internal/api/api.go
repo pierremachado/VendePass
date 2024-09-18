@@ -21,9 +21,9 @@ func main() {
 	http.HandleFunc("/user", handleGetUser)
 	http.HandleFunc("/route", handleGetRoute)
 	http.HandleFunc("/flights", handleGetFlights)
-	http.HandleFunc("/reservation", handleMakeReservations)
+	http.HandleFunc("/reservation", handleReservation)
 	http.HandleFunc("/cart", handleGetCart)
-	http.HandleFunc("/buy", handleBuyTicket)
+	http.HandleFunc("/ticket", handleTicket)
 	http.HandleFunc("/tickets", handleGetTickets)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
@@ -55,14 +55,20 @@ func handleGetTickets(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func handleBuyTicket(w http.ResponseWriter, r *http.Request) {
+func handleTicket(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "only POST allowed", http.StatusMethodNotAllowed)
+	switch r.Method {
+	case http.MethodPost:
+		handleBuyTicket(w, r)
+	case http.MethodDelete:
+		handleCancelTicket(w, r)
+	default:
+		http.Error(w, "only POST or DELETE allowed", http.StatusMethodNotAllowed)
 		return
 	}
+}
 
+func handleBuyTicket(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Authorization")
 	var buyTicket models.BuyTicket
 
@@ -76,6 +82,26 @@ func handleBuyTicket(w http.ResponseWriter, r *http.Request) {
 		Action: "buy",
 		Auth:   token,
 		Data:   buyTicket,
+	})
+
+}
+
+func handleCancelTicket(w http.ResponseWriter, r *http.Request) {
+
+	token := r.Header.Get("Authorization")
+
+	var ticketId models.CancelBuyRequest
+
+	err := json.NewDecoder(r.Body).Decode(&ticketId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	writeAndReturnResponse(w, models.Request{
+		Action: "cancel-buy",
+		Auth:   token,
+		Data:   ticketId,
 	})
 
 }
@@ -97,14 +123,20 @@ func handleGetCart(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handleMakeReservations(w http.ResponseWriter, r *http.Request) {
+func handleReservation(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "only POST allowed", http.StatusMethodNotAllowed)
+	switch r.Method {
+	case http.MethodPost:
+		handleMakeReservations(w, r)
+	case http.MethodDelete:
+		handleCancelReservation(w, r)
+	default:
+		http.Error(w, "only POST or DELETE allowed", http.StatusMethodNotAllowed)
 		return
 	}
+}
 
+func handleMakeReservations(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Authorization")
 
 	var flightIds models.FlightsRequest
@@ -118,6 +150,26 @@ func handleMakeReservations(w http.ResponseWriter, r *http.Request) {
 		Action: "reservation",
 		Auth:   token,
 		Data:   flightIds,
+	})
+
+}
+
+func handleCancelReservation(w http.ResponseWriter, r *http.Request) {
+
+	token := r.Header.Get("Authorization")
+
+	var reservationId models.CancelReservationRequest
+
+	err := json.NewDecoder(r.Body).Decode(&reservationId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	writeAndReturnResponse(w, models.Request{
+		Action: "cancel-reservation",
+		Auth:   token,
+		Data:   reservationId,
 	})
 
 }

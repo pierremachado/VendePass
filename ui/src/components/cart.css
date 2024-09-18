@@ -43,3 +43,11 @@
 .reservation h4 {
     font-weight: 400;
 }
+
+.delete {
+    transition: .2s;
+}
+
+.delete:hover {
+    transform: scale(1.1);
+}

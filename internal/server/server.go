@@ -77,10 +77,14 @@ func handleRequest(request models.Request, conn net.Conn) {
 		Flights(request.Auth, request.Data, conn)
 	case "reservation":
 		Reservation(request.Auth, request.Data, conn)
+	case "cancel-reservation":
+		CancelReservation(request.Auth, request.Data, conn)
 	case "cart":
 		GetCart(request.Auth, conn)
 	case "buy":
 		BuyTicket(request.Auth, request.Data, conn)
+	case "cancel-buy":
+		CancelBuy(request.Auth, request.Data, conn)
 	case "tickets":
 		GetTickets(request.Auth, conn)
 	}

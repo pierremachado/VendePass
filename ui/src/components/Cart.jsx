@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "./cart.css";
 import arrow from "../assets/arrow-right.svg"
 import src from "../assets/src.svg"
+import trash from "../assets/trash.svg"
 const Cart = () => {
     const [reservations, setReservations] = useState([]);
     const getCarts = async () => {
@@ -14,8 +15,23 @@ const Cart = () => {
         setReservations(response.data.Data.Reservations);
     };
 
+    const deleteReservation = async (id) => {
+        try {
+            const response = await axios.delete(`${url}/reservation`, {
+                data: { ReservationId: id },
+                headers: { Authorization: sessionStorage.getItem("token") }
+            });
+    
+            if (response.data.Error === "") {
+                setReservations(reservations.filter(reservation => reservation.Id !== id));
+            }
+        } catch (error) {
+            console.error('Error deleting reservation:', error);
+        }
+    };
+
     const buyTicket = async (id) => {
-        const response = await axios.post(url + "/buy", 
+        const response = await axios.post(url + "/ticket", 
             {ReservationId : id}, {
             headers: { Authorization: sessionStorage.getItem("token") },
         });
@@ -43,6 +59,7 @@ const Cart = () => {
                         {res.Dest.Name}
                         </h4>
                         <button className="buy" onClick={() => buyTicket(res.Id)}>Comprar</button>
+                        <img src={trash} width={"24px"} onClick={() => deleteReservation(res.Id)} className="delete" />
                         <br />
                     </div>
                 ))}

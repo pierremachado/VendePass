@@ -50,7 +50,6 @@ const Wishlist = ({ paths, setPaths }) => {
         } catch (error) {}
     };
 
-
     useEffect(() => {
         findFlights();
     }, [paths]);

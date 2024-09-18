@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
 	"vendepass/internal/dao"
 	"vendepass/internal/models"
@@ -56,6 +57,41 @@ func Reservation(auth string, data interface{}, conn net.Conn) {
 	}
 
 	// Sucesso: Reservas criadas com sucesso
+	WriteNewResponse(models.Response{
+		Data: map[string]interface{}{
+			"msg": "success",
+		},
+	}, conn)
+}
+
+func CancelReservation(auth string, data interface{}, conn net.Conn) {
+	// Verifica se a sessão existe
+	session, exists := SessionIfExists(auth)
+
+	if !exists {
+		WriteNewResponse(models.Response{
+			Error: "not authorized",
+		}, conn)
+		return
+	}
+
+	var cancelReservation models.CancelReservationRequest
+
+	jsonData, _ := json.Marshal(data)
+	json.Unmarshal(jsonData, &cancelReservation)
+
+	reservation := session.Reservations[cancelReservation.ReservationId]
+
+	flight, _ := dao.GetFlightDAO().FindById(reservation.FlightId)
+
+	flight.Mu.Lock()
+	flight.Seats++
+	flight.Mu.Unlock()
+
+	delete(session.Reservations, cancelReservation.ReservationId)
+
+	fmt.Printf("Sessão %s: voo %s cancelado com sucesso\n", session.ID, flight.Id)
+
 	WriteNewResponse(models.Response{
 		Data: map[string]interface{}{
 			"msg": "success",

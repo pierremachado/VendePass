@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./input.css";
 import capitals from "../../brazilcapitals.json";
 const Input = ({ placeholder, img, value, setValue }) => {
 
     let capitals_names = Object.keys(capitals)
     capitals_names.sort()
+    
+    useEffect(() => setValue(""), [])
 
     return (
         <div className="input">
