@@ -49,13 +49,12 @@ func CleanupSessions(timeout time.Duration) {
 				fmt.Printf("Encerrando sessão %s por inatividade\n", session.ID)
 				dao.GetSessionDAO().Delete(*session)
 			}
-			for i, reservation := range session.Reservations {
+			for key, reservation := range session.Reservations {
 				if time.Since(reservation.CreatedAt) > timeout {
 					fmt.Printf("Encerrando reserva %s por inatividade\n", reservation.Id)
 					flight, _ := dao.GetFlightDAO().FindById(reservation.FlightId)
 					flight.Seats++
-					session.Reservations[i] = session.Reservations[len(session.Reservations)-1]
-					session.Reservations = session.Reservations[:len(session.Reservations)-1]
+					delete(session.Reservations, key)
 				}
 			}
 		}
@@ -78,8 +77,12 @@ func handleRequest(request models.Request, conn net.Conn) {
 		Flights(request.Auth, request.Data, conn)
 	case "reservation":
 		Reservation(request.Auth, request.Data, conn)
-		// case "cart":
-		// 	GetCart(request.Auth, conn)
+	case "cart":
+		GetCart(request.Auth, conn)
+	case "buy":
+		BuyTicket(request.Auth, request.Data, conn)
+	case "tickets":
+		GetTickets(request.Auth, conn)
 	}
 
 }

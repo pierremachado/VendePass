@@ -8,14 +8,10 @@ import (
 	"time"
 	"vendepass/internal/dao"
 	"vendepass/internal/models"
-	"vendepass/internal/utils"
 )
 
 func getClient(username string) (*models.Client, error) {
-	clientDao := dao.GetClientDAO()
-	client := utils.Find[models.Client](clientDao.FindAll(), func(c models.Client) bool {
-		return c.Username == username
-	})
+	client := findClient(username)
 
 	var isError error = nil
 
@@ -24,6 +20,15 @@ func getClient(username string) (*models.Client, error) {
 	}
 
 	return client, isError
+}
+
+func findClient(username string) *models.Client {
+	for _, client := range dao.GetClientDAO().FindAll() {
+		if client.Username == username {
+			return client
+		}
+	}
+	return nil
 }
 
 func passwordMatches(client *models.Client, password string) bool {

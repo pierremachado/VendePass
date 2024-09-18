@@ -39,7 +39,7 @@ func (dao *MemorySessionDAO) Insert(t *models.Session) {
 
 	id := uuid.New()
 	t.ID = id
-	t.Reservations = make([]models.Reservation, 0)
+	t.Reservations = make(map[uuid.UUID]models.Reservation)
 	dao.data[id] = t
 }
 

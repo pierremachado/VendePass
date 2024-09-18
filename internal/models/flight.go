@@ -50,11 +50,12 @@ func (f *Flight) ProcessReservations() {
 			fmt.Printf("Sessão %s: erro ao reservar para o voo %s - %s\n", session.ID, f.Id, err)
 		} else {
 			ticket.ClientId = session.ClientID
-			session.Reservations = append(session.Reservations, Reservation{
-				Id:        uuid.New(),
+			id := uuid.New()
+			session.Reservations[id] = Reservation{
+				Id:        id,
 				CreatedAt: time.Now(),
 				Ticket:    ticket,
-			})
+			}
 			fmt.Printf("Sessão %s: voo %s reservado com sucesso!\n", session.ID, f.Id)
 		}
 	}

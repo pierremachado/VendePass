@@ -20,7 +20,7 @@ type FlightDAO interface {
 }
 
 type ClientDAO interface {
-	FindAll() []models.Client
+	FindAll() []*models.Client
 	Insert(*models.Client)
 	Update(*models.Client) error
 	Delete(models.Client)

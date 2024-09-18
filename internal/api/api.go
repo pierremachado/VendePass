@@ -23,6 +23,8 @@ func main() {
 	http.HandleFunc("/flights", handleGetFlights)
 	http.HandleFunc("/reservation", handleMakeReservations)
 	http.HandleFunc("/cart", handleGetCart)
+	http.HandleFunc("/buy", handleBuyTicket)
+	http.HandleFunc("/tickets", handleGetTickets)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
 
@@ -35,6 +37,47 @@ func allowCrossOrigin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+}
+
+func handleGetTickets(w http.ResponseWriter, r *http.Request) {
+	allowCrossOrigin(w, r)
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "only GET allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	token := r.Header.Get("Authorization")
+
+	writeAndReturnResponse(w, models.Request{
+		Action: "tickets",
+		Auth:   token,
+	})
+}
+
+func handleBuyTicket(w http.ResponseWriter, r *http.Request) {
+	allowCrossOrigin(w, r)
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "only POST allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	token := r.Header.Get("Authorization")
+	var buyTicket models.BuyTicket
+
+	err := json.NewDecoder(r.Body).Decode(&buyTicket)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	writeAndReturnResponse(w, models.Request{
+		Action: "buy",
+		Auth:   token,
+		Data:   buyTicket,
+	})
+
 }
 
 func handleGetCart(w http.ResponseWriter, r *http.Request) {

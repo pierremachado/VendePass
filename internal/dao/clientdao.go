@@ -12,7 +12,7 @@ import (
 )
 
 type MemoryClientDAO struct {
-	data map[uuid.UUID]models.Client
+	data map[uuid.UUID]*models.Client
 }
 
 func (dao *MemoryClientDAO) New() {
@@ -31,13 +31,13 @@ func (dao *MemoryClientDAO) New() {
 	json.Unmarshal(b, &clients)
 
 	for _, client := range clients {
-		dao.data[client.Id] = client
+		dao.data[client.Id] = &client
 	}
 
 }
 
-func (dao *MemoryClientDAO) FindAll() []models.Client {
-	v := make([]models.Client, 0, len(dao.data))
+func (dao *MemoryClientDAO) FindAll() []*models.Client {
+	v := make([]*models.Client, 0, len(dao.data))
 
 	for _, value := range dao.data {
 		v = append(v, value)
@@ -51,7 +51,7 @@ func (dao *MemoryClientDAO) Insert(t *models.Client) {
 
 	t.Id = id
 
-	dao.data[id] = *t
+	dao.data[id] = t
 }
 
 func (dao *MemoryClientDAO) Update(t *models.Client) error {
@@ -78,5 +78,5 @@ func (dao *MemoryClientDAO) FindById(id uuid.UUID) (*models.Client, error) {
 		return nil, errors.New("not found")
 	}
 
-	return &client, nil
+	return client, nil
 }

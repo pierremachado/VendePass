@@ -9,5 +9,5 @@ type Client struct {
 	Name           string    `json:"Name"`
 	Username       string    `json:"Username"`
 	Password       string    `json:"Password"`
-	Client_flights []Ticket  `json:"Client_flights"`
+	Client_flights []*Ticket `json:"Client_flights"`
 }

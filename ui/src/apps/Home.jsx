@@ -29,7 +29,6 @@ const Home = () => {
         });
 
     const [selected, setSelected] = useState(3);
-    const [tickets, setTickets] = useState([]);
     const [user, setUser] = useState({
         Name: "",
         Username: "",
@@ -93,10 +92,10 @@ const Home = () => {
             case 0:
                 return <MyMap paths={path} />;
             case 1:
-                return <Tickets tickets={tickets} />;
+                return <Tickets />;
             case 2:
-                return <Cart />
-                
+                return <Cart />;
+
             case 3:
                 return <div className="home-img" />;
         }
@@ -105,7 +104,7 @@ const Home = () => {
     return (
         <div className="home">
             <Header name={user.Name} />
-            <ToastContainer/>
+            <ToastContainer />
             <main>
                 <div className="grid">
                     <div className="row">
@@ -158,7 +157,15 @@ const Home = () => {
                         </div>
                         <div className="col main-col">{changeScreen()}</div>
                         <div className="col right-col">
-                            <Wishlist paths={path} setPaths={setPath}/>
+                            {selected === 0 ? (
+                                <Wishlist paths={path} setPaths={setPath} />
+                            ) : (
+                                <>
+                                    <div className="option"></div>
+                                    <div className="option"></div>
+                                    <div className="option"></div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

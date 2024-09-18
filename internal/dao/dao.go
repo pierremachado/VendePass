@@ -24,7 +24,7 @@ func GetFlightDAO() interfaces.FlightDAO {
 
 func GetClientDAO() interfaces.ClientDAO {
 	if clientDao == nil {
-		clientDao = &MemoryClientDAO{make(map[uuid.UUID]models.Client)}
+		clientDao = &MemoryClientDAO{make(map[uuid.UUID]*models.Client)}
 		clientDao.New()
 	}
 
