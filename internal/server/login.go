@@ -44,7 +44,7 @@ func login(data interface{}, conn net.Conn) {
 	json.Unmarshal(jsonData, &logCred)
 
 	login, err := getClient(logCred.Username)
-
+	fmt.Println(login)
 	if err != nil {
 		WriteNewResponse(
 			models.Response{

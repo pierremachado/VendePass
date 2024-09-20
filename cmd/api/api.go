@@ -11,7 +11,7 @@ import (
 const (
 	port      = ":8081"
 	CONN_PORT = "8080"
-	CONN_HOST = "localhost"
+	CONN_HOST = "app"
 	CONN_TYPE = "tcp"
 )
 

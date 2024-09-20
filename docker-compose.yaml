@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    volumes:
+      - ./internal/stubs:/app/internal/stubs 
     command: ["./app"]
     networks:
       - vendepass-vp
