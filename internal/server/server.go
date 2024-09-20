@@ -49,14 +49,18 @@ func CleanupSessions(timeout time.Duration) {
 				fmt.Printf("Encerrando sessão %s por inatividade\n", session.ID)
 				dao.GetSessionDAO().Delete(*session)
 			}
+			session.Mu.Lock()
 			for key, reservation := range session.Reservations {
 				if time.Since(reservation.CreatedAt) > timeout {
 					fmt.Printf("Encerrando reserva %s por inatividade\n", reservation.Id)
 					flight, _ := dao.GetFlightDAO().FindById(reservation.FlightId)
+					flight.Mu.Lock()
 					flight.Seats++
+					flight.Mu.Unlock()
 					delete(session.Reservations, key)
 				}
 			}
+			session.Mu.Unlock()
 		}
 	}
 }
