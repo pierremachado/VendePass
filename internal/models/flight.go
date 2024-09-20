@@ -49,6 +49,8 @@ func (f *Flight) ProcessReservations() {
 		if err != nil {
 			fmt.Printf("Sessão %s: erro ao reservar para o voo %s - %s\n", session.ID, f.Id, err)
 		} else {
+			fmt.Println("sessao" + session.ID.String())
+			session.Mu.Lock()
 			ticket.ClientId = session.ClientID
 			id := uuid.New()
 			session.Reservations[id] = Reservation{
@@ -56,6 +58,7 @@ func (f *Flight) ProcessReservations() {
 				CreatedAt: time.Now(),
 				Ticket:    ticket,
 			}
+			session.Mu.Unlock()
 			fmt.Printf("Sessão %s: voo %s reservado com sucesso!\n", session.ID, f.Id)
 		}
 	}

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,4 +12,5 @@ type Session struct {
 	ClientID       uuid.UUID
 	LastTimeActive time.Time
 	Reservations   map[uuid.UUID]Reservation
+	Mu             sync.RWMutex
 }

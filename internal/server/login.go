@@ -53,10 +53,20 @@ func login(data interface{}, conn net.Conn) {
 		return
 	}
 
+	var session *models.Session
+
 	if passwordMatches(login, logCred.Password) {
 
-		session := &models.Session{ClientID: login.Id, LastTimeActive: time.Now()}
-		dao.GetSessionDAO().Insert(session)
+		if s := findUser(login); s != nil {
+			WriteNewResponse(
+				models.Response{
+					Error: "more than one user logged",
+				}, conn)
+			return
+		} else {
+			session = &models.Session{ClientID: login.Id, LastTimeActive: time.Now()}
+			dao.GetSessionDAO().Insert(session)
+		}
 
 		token := fmt.Sprintf("%s", session.ID)
 
@@ -67,6 +77,15 @@ func login(data interface{}, conn net.Conn) {
 	}
 	WriteNewResponse(response, conn)
 
+}
+
+func findUser(login *models.Client) *models.Session {
+	for _, s := range dao.GetSessionDAO().FindAll() {
+		if s.ClientID == login.Id {
+			return s
+		}
+	}
+	return nil
 }
 
 func logout(auth string, conn net.Conn) {

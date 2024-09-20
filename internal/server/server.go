@@ -108,12 +108,10 @@ func WriteNewResponse(response models.Response, conn net.Conn) {
 }
 
 func SessionIfExists(token string) (*models.Session, bool) {
-
 	uuid, err := uuid.Parse(token)
 	if err != nil {
 		return nil, false
 	}
-
 	session, err := dao.GetSessionDAO().FindById(uuid)
 	if err != nil {
 		return nil, false

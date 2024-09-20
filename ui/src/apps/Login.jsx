@@ -29,6 +29,9 @@ const Login = () => {
             case "invalid credentials":
                 setErrorMessage("Credenciais inválidas");
                 break;
+            case "more than one user logged":
+                setErrorMessage("Um dispositivo já está conectado com a conta.")
+                break;
             default:
                 sessionStorage.setItem("token", `${response.data.Data.token}`);
                 navigate("/home");

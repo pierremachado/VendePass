@@ -5,7 +5,11 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
+	"vendepass/internal/dao"
 	"vendepass/internal/models"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -26,6 +30,48 @@ func main() {
 	http.HandleFunc("/ticket", handleTicket)
 	http.HandleFunc("/tickets", handleGetTickets)
 	log.Fatal(http.ListenAndServe(port, nil))
+
+	for i := 0; i < 10; i++ {
+		session := &models.Session{ClientID: uuid.New(), LastTimeActive: time.Now()}
+		dao.GetSessionDAO().Insert(session)
+	}
+
+	for _, session := range dao.GetSessionDAO().FindAll() {
+		id, _ := uuid.Parse("650e8400-e29b-41d4-a716-446655440001")
+		wriiteAndReturnResponse(models.Request{
+			Action: "reservation",
+			Auth:   session.ClientID.String(),
+			Data: models.FlightsRequest{
+				FlightIds: []uuid.UUID{id},
+			},
+		})
+	}
+
+}
+func wriiteAndReturnResponse(req models.Request) {
+	conn, err := net.Dial("tcp", "localhost"+":"+"8080")
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+
+	buffer, _ := json.Marshal(req)
+	_, writeErr := conn.Write(buffer)
+	if writeErr != nil {
+		return
+	}
+
+	receive := make([]byte, 2048)
+	n, readErr := conn.Read(receive)
+	if readErr != nil {
+		return
+	}
+
+	var responseData models.Response
+	err = json.Unmarshal(receive[:n], &responseData)
+	if err != nil {
+		return
+	}
 }
 
 func allowCrossOrigin(w http.ResponseWriter, r *http.Request) {
