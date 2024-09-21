@@ -48,6 +48,7 @@ func Reservation(auth string, data interface{}, conn net.Conn) {
 				"Flights": responseData,
 			},
 		}, conn)
+		fmt.Println("at least one flight is not available: ", notAvailableFlights)
 		return
 	}
 

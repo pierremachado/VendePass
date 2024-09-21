@@ -117,6 +117,7 @@ func getRoute(flightIds []uuid.UUID) ([]map[string]interface{}, error) {
 	for i, id := range flightIds {
 		flightresponse := make(map[string]interface{})
 		flight, err := dao.GetFlightDAO().FindById(id)
+		flight.Mu.Lock()
 		if err != nil {
 
 			return nil, fmt.Errorf("some flight doesnt exists: %s", id)
@@ -124,10 +125,14 @@ func getRoute(flightIds []uuid.UUID) ([]map[string]interface{}, error) {
 
 		src, _ := dao.GetAirportDAO().FindById(flight.SourceAirportId)
 		dest, _ := dao.GetAirportDAO().FindById(flight.DestAirportId)
-
+		src.Mu.RLock()
+		dest.Mu.RLock()
 		flightresponse["Seats"] = flight.Seats
+		flight.Mu.Unlock()
 		flightresponse["Src"] = src.City.Name
 		flightresponse["Dest"] = dest.City.Name
+		src.Mu.RUnlock()
+		dest.Mu.RUnlock()
 		responseData[i] = flightresponse
 	}
 	return responseData, nil
