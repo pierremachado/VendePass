@@ -56,7 +56,7 @@ func (dao *MemorySessionDAO) Update(t *models.Session) error {
 	return nil
 }
 
-func (dao *MemorySessionDAO) Delete(t models.Session) {
+func (dao *MemorySessionDAO) Delete(t *models.Session) {
 	dao.mu.Lock()
 	defer dao.mu.Unlock()
 

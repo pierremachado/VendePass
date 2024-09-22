@@ -13,11 +13,11 @@ import (
 // It sends a response containing a list of tickets with their respective source, destination, and ID.
 //
 // Parameters:
-// - auth: A string representing the authentication token.
-// - conn: A net.Conn object representing the connection to the client.
+//   - auth: A string representing the authentication token.
+//   - conn: A net.Conn object representing the connection to the client.
 //
 // Return:
-// - No return value.
+//   - No return value.
 func GetTickets(auth string, conn net.Conn) {
 	session, exists := SessionIfExists(auth)
 
@@ -57,12 +57,12 @@ func GetTickets(auth string, conn net.Conn) {
 // and sends a response indicating success or failure.
 //
 // Parameters:
-// - auth: A string representing the authentication token.
-// - data: An interface containing the necessary data for purchasing a ticket.
-// - conn: A net.Conn object representing the connection to the client.
+//   - auth: A string representing the authentication token.
+//   - data: An interface containing the necessary data for purchasing a ticket.
+//   - conn: A net.Conn object representing the connection to the client.
 //
 // Return:
-// - No return value.
+//   - No return value.
 func BuyTicket(auth string, data interface{}, conn net.Conn) {
 	session, exists := SessionIfExists(auth)
 
@@ -111,12 +111,12 @@ func BuyTicket(auth string, data interface{}, conn net.Conn) {
 // and sends a response indicating success or failure.
 //
 // Parameters:
-// - auth: A string representing the authentication token. This is used to identify the client.
-// - data: An interface containing the necessary data for canceling a ticket.
-// - conn: A net.Conn object representing the connection to the client. This is used to send a response.
+//   - auth: A string representing the authentication token. This is used to identify the client.
+//   - data: An interface containing the necessary data for canceling a ticket.
+//   - conn: A net.Conn object representing the connection to the client. This is used to send a response.
 //
 // Return:
-// - No return value.
+//   - No return value.
 func CancelBuy(auth string, data interface{}, conn net.Conn) {
 	session, exists := SessionIfExists(auth)
 
@@ -153,12 +153,12 @@ func CancelBuy(auth string, data interface{}, conn net.Conn) {
 // findTicketById searches for a ticket with the given ID in a list of tickets.
 //
 // Parameters:
-// - tickets: A slice of pointers to models.Ticket, representing the list of tickets to search.
-// - id: A uuid.UUID representing the ID of the ticket to find.
+//   - tickets: A slice of pointers to models.Ticket, representing the list of tickets to search.
+//   - id: A uuid.UUID representing the ID of the ticket to find.
 //
 // Return:
-// - A pointer to models.Ticket if a ticket with the given ID is found in the list.
-// - nil if no ticket with the given ID is found in the list.
+//   - A pointer to models.Ticket if a ticket with the given ID is found in the list.
+//   - nil if no ticket with the given ID is found in the list.
 func findTicketById(tickets []*models.Ticket, id uuid.UUID) *models.Ticket {
 	for _, ticket := range tickets {
 		if ticket.Id == id {
@@ -171,12 +171,12 @@ func findTicketById(tickets []*models.Ticket, id uuid.UUID) *models.Ticket {
 // removeTicketByID searches for and removes a ticket with the given ID from a list of tickets.
 //
 // Parameters:
-// - tickets: A slice of pointers to models.Ticket, representing the list of tickets to search and remove from.
-// - id: A uuid.UUID representing the ID of the ticket to find and remove.
+//   - tickets: A slice of pointers to models.Ticket, representing the list of tickets to search and remove from.
+//   - id: A uuid.UUID representing the ID of the ticket to find and remove.
 //
 // Return:
-// - A slice of pointers to models.Ticket representing the updated list of tickets after removing the ticket with the given ID.
-//   If no ticket with the given ID is found, the original list is returned.
+//   - A slice of pointers to models.Ticket representing the updated list of tickets after removing the ticket with the given ID.
+//     If no ticket with the given ID is found, the original list is returned.
 func removeTicketByID(tickets []*models.Ticket, id uuid.UUID) []*models.Ticket {
 	for i, ticket := range tickets {
 		if ticket.Id == id {

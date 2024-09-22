@@ -33,7 +33,7 @@ func TestDeleteSession(t *testing.T) {
 
 	sessions.Insert(&session)
 
-	sessions.Delete(session)
+	sessions.Delete(&session)
 
 	_, err := sessions.FindById(session.ID)
 
