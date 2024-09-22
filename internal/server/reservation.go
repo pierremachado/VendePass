@@ -8,8 +8,17 @@ import (
 	"vendepass/internal/models"
 )
 
+// Reservation handles the creation of reservations for a given set of flights.
+// It verifies the session's existence, deserializes the request data, processes each requested flight,
+// checks for availability, and sends the session to the respective flight's reservation queue.
+// If any flight is not available, it responds with an error.
+//
+// Parameters:
+// - auth: A string representing the session's authentication token.
+// - data: An interface containing the request data. It should be of type models.FlightsRequest.
+// - conn: A net.Conn representing the connection to the client.
 func Reservation(auth string, data interface{}, conn net.Conn) {
-	// Verifica se a sessão existe
+	// Check if the session exists
 	session, exists := SessionIfExists(auth)
 
 	if !exists {
@@ -21,13 +30,13 @@ func Reservation(auth string, data interface{}, conn net.Conn) {
 
 	var flightRequest models.FlightsRequest
 
-	// Deserializa os dados da requisição
+	// Deserialize the request data
 	jsonData, _ := json.Marshal(data)
 	json.Unmarshal(jsonData, &flightRequest)
 
 	flights := make([]*models.Flight, len(flightRequest.FlightIds))
 	var notAvailableFlights []*models.Flight
-	// Processa cada voo solicitado
+	// Process each requested flight
 	for i, id := range flightRequest.FlightIds {
 		flight, _ := dao.GetFlightDAO().FindById(id)
 		flight.Mu.Lock()
@@ -39,7 +48,7 @@ func Reservation(auth string, data interface{}, conn net.Conn) {
 		flight.Mu.Unlock()
 	}
 
-	// Verifica se houve algum voo indisponível e responde com erro
+	// Check if any flight is not available and respond with error
 	if len(notAvailableFlights) > 0 {
 		responseData, _ := getRoute(flightRequest.FlightIds)
 		WriteNewResponse(models.Response{
@@ -52,11 +61,11 @@ func Reservation(auth string, data interface{}, conn net.Conn) {
 	}
 
 	for _, flight := range flights {
-		// Envia a sessão para a fila de reserva
+		// Send the session to the flight's reservation queue
 		flight.Queue <- session
 	}
 
-	// Sucesso: Reservas criadas com sucesso
+	// Success: Reservations created successfully
 	WriteNewResponse(models.Response{
 		Data: map[string]interface{}{
 			"msg": "success",
@@ -64,8 +73,19 @@ func Reservation(auth string, data interface{}, conn net.Conn) {
 	}, conn)
 }
 
+// CancelReservation cancels a reservation for a specific flight.
+// It verifies the session's existence, deserializes the request data, retrieves the reservation,
+// releases the seat on the flight, and removes the reservation from the session.
+//
+// Parameters:
+// - auth: A string representing the session's authentication token.
+// - data: An interface containing the request data. It should be of type models.CancelReservationRequest.
+// - conn: A net.Conn representing the connection to the client.
+//
+// Return:
+// - None.
 func CancelReservation(auth string, data interface{}, conn net.Conn) {
-	// Verifica se a sessão existe
+	// Verify if the session exists
 	session, exists := SessionIfExists(auth)
 
 	if !exists {
@@ -90,7 +110,7 @@ func CancelReservation(auth string, data interface{}, conn net.Conn) {
 
 	delete(session.Reservations, cancelReservation.ReservationId)
 
-	fmt.Printf("Sessão %s: voo %s cancelado com sucesso\n", session.ID, flight.Id)
+	fmt.Printf("Session %s: flight %s canceled successfully\n", session.ID, flight.Id)
 
 	WriteNewResponse(models.Response{
 		Data: map[string]interface{}{

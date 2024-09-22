@@ -6,6 +6,15 @@ import (
 	"vendepass/internal/models"
 )
 
+// GetCart retrieves the user's cart information based on the provided authentication token.
+// It sends a response containing the list of reservations along with their corresponding source and destination cities.
+//
+// Parameters:
+// - auth: A string representing the user's authentication token.
+// - conn: A net.Conn object representing the connection to the client.
+//
+// Return:
+// - This function does not return any value.
 func GetCart(auth string, conn net.Conn) {
 	session, exists := SessionIfExists(auth)
 
