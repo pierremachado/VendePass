@@ -14,11 +14,8 @@ import (
 // It checks if the provided authentication token is valid and returns a list of all routes if authorized.
 //
 // Parameters:
-// - auth: A string representing the authentication token provided by the client.
-// - conn: A net.Conn object representing the connection to the client.
-//
-// Return:
-// - This function does not return any value. It writes a response to the client's connection.
+// 	- auth: A string representing the authentication token provided by the client.
+// 	- conn: A net.Conn object representing the connection to the client.
 func AllRoutes(auth string, conn net.Conn) {
 
 	_, exists := SessionIfExists(auth)
@@ -47,12 +44,9 @@ func AllRoutes(auth string, conn net.Conn) {
 // If no route is found between the source and destination cities, it returns an error response.
 //
 // Parameters:
-// - auth: A string representing the authentication token provided by the client.
-// - data: An interface containing the source and destination city names.
-// - conn: A net.Conn object representing the connection to the client.
-//
-// Return:
-// - This function does not return any value. It writes a response to the client's connection.
+// 	- auth: A string representing the authentication token provided by the client.
+// 	- data: An interface containing the source and destination city names.
+// 	- conn: A net.Conn object representing the connection to the client.
 func Route(auth string, data interface{}, conn net.Conn) {
 	_, exists := SessionIfExists(auth)
 
@@ -108,15 +102,15 @@ func Route(auth string, data interface{}, conn net.Conn) {
 // If any of the provided flight IDs does not exist, it returns an error response.
 //
 // Parameters:
-// - auth: A string representing the authentication token provided by the client.
-// - data: An interface containing the flight IDs.
-// - conn: A net.Conn object representing the connection to the client.
+// 	- auth: A string representing the authentication token provided by the client.
+// 	- data: An interface containing the flight IDs.
+// 	- conn: A net.Conn object representing the connection to the client.
 //
 // Return:
-// - This function does not return any value. It writes a response to the client's connection.
-// - The response contains flight details if authorized and valid flight IDs are provided.
-// - If not authorized, it returns an error response with the message "not authorized".
-// - If any of the provided flight IDs does not exist, it returns an error response.
+// 	- This function does not return any value. It writes a response to the client's connection.
+// 	- The response contains flight details if authorized and valid flight IDs are provided.
+// 	- If not authorized, it returns an error response with the message "not authorized".
+// 	- If any of the provided flight IDs does not exist, it returns an error response.
 func Flights(auth string, data interface{}, conn net.Conn) {
 	_, exists := SessionIfExists(auth)
 
@@ -150,14 +144,14 @@ func Flights(auth string, data interface{}, conn net.Conn) {
 // It fetches the flight details from the database and constructs a response containing the flight details.
 //
 // Parameters:
-// - flightIds: A slice of uuid.UUID representing the flight IDs for which the details need to be retrieved.
+// 	- flightIds: A slice of uuid.UUID representing the flight IDs for which the details need to be retrieved.
 //
 // Return:
-// - A slice of map[string]interface{} containing the flight details. Each map represents a flight and contains the following keys:
+// 	- A slice of map[string]interface{} containing the flight details. Each map represents a flight and contains the following keys:
 //   - "Seats": An integer representing the number of available seats on the flight.
 //   - "Src": A string representing the source city of the flight.
 //   - "Dest": A string representing the destination city of the flight.
-// - An error if any of the provided flight IDs does not exist in the database.
+// 	- An error if any of the provided flight IDs does not exist in the database.
 func getRoute(flightIds []uuid.UUID) ([]map[string]interface{}, error) {
 	responseData := make([]map[string]interface{}, len(flightIds))
 	for i, id := range flightIds {

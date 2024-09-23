@@ -10,11 +10,8 @@ import (
 // It sends a response containing the list of reservations along with their corresponding source and destination cities.
 //
 // Parameters:
-// - auth: A string representing the user's authentication token.
-// - conn: A net.Conn object representing the connection to the client.
-//
-// Return:
-// - This function does not return any value.
+// 	- auth: A string representing the user's authentication token.
+// 	- conn: A net.Conn object representing the connection to the client.
 func GetCart(auth string, conn net.Conn) {
 	session, exists := SessionIfExists(auth)
 

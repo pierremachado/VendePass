@@ -1,3 +1,4 @@
+// Package dao implements the interfaces for the database of the server.
 package interfaces
 
 import (

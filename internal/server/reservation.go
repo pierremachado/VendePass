@@ -14,9 +14,9 @@ import (
 // If any flight is not available, it responds with an error.
 //
 // Parameters:
-// - auth: A string representing the session's authentication token.
-// - data: An interface containing the request data. It should be of type models.FlightsRequest.
-// - conn: A net.Conn representing the connection to the client.
+// 	- auth: A string representing the session's authentication token.
+// 	- data: An interface containing the request data. It should be of type models.FlightsRequest.
+// 	- conn: A net.Conn representing the connection to the client.
 func Reservation(auth string, data interface{}, conn net.Conn) {
 	// Check if the session exists
 	session, exists := SessionIfExists(auth)
@@ -78,12 +78,9 @@ func Reservation(auth string, data interface{}, conn net.Conn) {
 // releases the seat on the flight, and removes the reservation from the session.
 //
 // Parameters:
-// - auth: A string representing the session's authentication token.
-// - data: An interface containing the request data. It should be of type models.CancelReservationRequest.
-// - conn: A net.Conn representing the connection to the client.
-//
-// Return:
-// - None.
+// 	- auth: A string representing the session's authentication token.
+// 	- data: An interface containing the request data. It should be of type models.CancelReservationRequest.
+// 	- conn: A net.Conn representing the connection to the client.
 func CancelReservation(auth string, data interface{}, conn net.Conn) {
 	// Verify if the session exists
 	session, exists := SessionIfExists(auth)

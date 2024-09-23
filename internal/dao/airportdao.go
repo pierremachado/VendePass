@@ -1,3 +1,4 @@
+// Package dao implements the Data Access Object for the database of the server.
 package dao
 
 import (
