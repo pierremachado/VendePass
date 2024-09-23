@@ -129,6 +129,20 @@ Essa abordagem melhora significativamente a modularização do código. Ao separ
 
 ### Emprego do Docker
 
+Para garantir portabilidade dos serviços do sistema em diferentes sistemas operacionais e computadores, o software conta com a conteinerização dos seus componentes. Foi utilizado o Docker como ferramenta para criar as imagens do sistema, com suas dependências necessárias (compiladores, bibliotecas e demais recursos). O software está dividido em três imagens, e duas delas estão definidas no Dockerfile da pasta raiz do projeto, contendo:
+- A aplicação do servidor com a API Socket Básica para comunicação TCP;
+- A API HTTP utilizada como comunicador intermediário entre a aplicação React e o servidor TCP.
+
+Ambas são feitas com base na imagem do compilador "Go", versão 22.
+
+A terceira imagem Docker está descrita pelo Dockerfile na pasta `ui`, com base na imagem do Node 18, para tornar possível a execução do servidor Vite para a aplicação React.
+
+Para tornar mais prática a conteinerização das imagens, o arquivo `docker-compose.yaml` executa o build dos arquivos Dockerfile e cria um "network" para tornar a comunicação entre os três conteineres possível, através de uma rede virtual. A "network" segue o padrão de driver "bridge".
+
+Para executar a conteinerização e execução do sistema, é necessário ter a ferramenta Docker instalada no computador e digitar no terminal, na pasta raiz do projeto, o comando `docker compose up --build`. Para encerrar a execução, deve ser executado `docker compose down`.
+
+Para a execução para testes, sem uso do docker, o arquivo shell `start.sh`, na pasta raiz do projeto, contém as instruções de execução sem conteinerização do projeto. Para usá-las, deve ser executado os comandos `chmod +x start.sh`, para dar permissão de execução ao arquivo shell e `./start.sh`, na pasta raiz do projeto.
+
 ### Conclusão
 
 ### Referências
