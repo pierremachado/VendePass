@@ -14,6 +14,8 @@ const (
 	timeLimit = 30 * time.Minute
 )
 
+// main function is the entry point of the application.
+// It sets up the server, handles incoming connections, and manages flight reservations.
 func main() {
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
