@@ -1,3 +1,4 @@
+// Package dao implements the interfaces for the database of the server.
 package interfaces
 
 import (
@@ -32,7 +33,7 @@ type SessionDAO interface {
 	FindAll() []*models.Session
 	Insert(*models.Session)
 	Update(*models.Session) error
-	Delete(models.Session)
+	Delete(*models.Session)
 	FindById(uuid.UUID) (*models.Session, error)
 	DeleteAll()
 	New()

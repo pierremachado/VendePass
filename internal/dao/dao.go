@@ -13,6 +13,17 @@ var flightDao interfaces.FlightDAO
 var clientDao interfaces.ClientDAO
 var sessionDao interfaces.SessionDAO
 
+// GetFlightDAO returns a singleton instance of FlightDAO.
+// If the instance does not exist, it creates a new one and initializes it.
+//
+// The FlightDAO interface provides methods for managing flight data.
+// This implementation uses a MemoryFlightDAO, which stores flight data in memory.
+//
+// Parameters:
+// None
+//
+// Return:
+// flightDao (interfaces.FlightDAO) - A singleton instance of FlightDAO.
 func GetFlightDAO() interfaces.FlightDAO {
 	if flightDao == nil {
 		flightDao = &MemoryFlightDAO{make(map[uuid.UUID]map[uuid.UUID]*models.Flight)}
