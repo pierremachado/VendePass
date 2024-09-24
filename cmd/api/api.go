@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	port      = ":8081"
-	CONN_PORT = "8080"
+	port      = ":9999"
+	CONN_PORT = "8888"
 	CONN_HOST = "app"
 	CONN_TYPE = "tcp"
 )
@@ -35,8 +35,8 @@ func main() {
 // handles the preflight OPTIONS request.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the response headers.
-// 	- r: *http.Request to read the request method.
+//   - w: http.ResponseWriter to write the response headers.
+//   - r: *http.Request to read the request method.
 func allowCrossOrigin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -54,8 +54,8 @@ func allowCrossOrigin(w http.ResponseWriter, r *http.Request) {
 // The server's response is then decoded and returned as a JSON object in the HTTP response.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleGetTickets(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 
@@ -77,8 +77,8 @@ func handleGetTickets(w http.ResponseWriter, r *http.Request) {
 // If the method is neither POST nor DELETE, it returns a 405 Method Not Allowed status with an error message.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleTicket(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 	switch r.Method {
@@ -99,8 +99,8 @@ func handleTicket(w http.ResponseWriter, r *http.Request) {
 // and sends it to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleBuyTicket(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Authorization")
 	var buyTicket models.BuyTicket
@@ -125,8 +125,8 @@ func handleBuyTicket(w http.ResponseWriter, r *http.Request) {
 // and sends it to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleCancelTicket(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("Authorization")
@@ -154,8 +154,8 @@ func handleCancelTicket(w http.ResponseWriter, r *http.Request) {
 // The constructed Request object is then sent to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleGetCart(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 
@@ -177,8 +177,8 @@ func handleGetCart(w http.ResponseWriter, r *http.Request) {
 // If the method is neither POST nor DELETE, it returns a 405 Method Not Allowed status with an error message.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleReservation(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 	switch r.Method {
@@ -199,8 +199,8 @@ func handleReservation(w http.ResponseWriter, r *http.Request) {
 // and sends it to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleMakeReservations(w http.ResponseWriter, r *http.Request) {
 	// Extract the authorization token from the request headers
 	token := r.Header.Get("Authorization")
@@ -229,8 +229,8 @@ func handleMakeReservations(w http.ResponseWriter, r *http.Request) {
 // and sends it to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleCancelReservation(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("Authorization")
@@ -260,8 +260,8 @@ func handleCancelReservation(w http.ResponseWriter, r *http.Request) {
 // and sends it to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleGetFlights(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 
@@ -295,8 +295,8 @@ func handleGetFlights(w http.ResponseWriter, r *http.Request) {
 // and sends it to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleGetRoute(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 	if r.Method != http.MethodGet {
@@ -327,8 +327,8 @@ func handleGetRoute(w http.ResponseWriter, r *http.Request) {
 // The constructed Request object is then sent to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleGetUser(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 	if r.Method != http.MethodGet {
@@ -347,8 +347,8 @@ func handleGetUser(w http.ResponseWriter, r *http.Request) {
 // The server's response is then returned as a JSON object in the HTTP response.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleLogout(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 	if r.Method != http.MethodGet {
@@ -368,8 +368,8 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 // It then constructs a Request object with the appropriate action and login credentials, and sends it to the server using the writeAndReturnResponse function.
 //
 // Parameters:
-// 	- w: http.ResponseWriter to write the HTTP response.
-// 	- r: *http.Request to read the HTTP request.
+//   - w: http.ResponseWriter to write the HTTP response.
+//   - r: *http.Request to read the HTTP request.
 func handleLogin(w http.ResponseWriter, r *http.Request) {
 	allowCrossOrigin(w, r)
 

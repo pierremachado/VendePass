@@ -21,5 +21,5 @@ COPY --from=builder /app/api .
 RUN chmod +x app api
 RUN apk add --no-cache libc6-compat
 
-EXPOSE 8081
-EXPOSE 8080
+EXPOSE 9999
+EXPOSE 8888
