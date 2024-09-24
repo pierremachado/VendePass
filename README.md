@@ -13,7 +13,7 @@
 
 É evidente que houve uma crescente demanda para que as empresas se adaptem ao rápido crescimento do comércio virtual nos últimos anos, já que os sistemas de compras online oferecem conforto aos clientes que buscam agilidade e preços acessíveis. Um dos setores que mais se destaca nesse cenário é o das companhias aéreas, que, através de plataformas automatizadas, proporciona interações rápidas e práticas para a compra de passagens. Em vista disso, uma empresa aérea identificou a necessidade de implementar um sistema mais eficiente para pesquisar rotas e vender passagens, de modo a otimizar a experiência do cliente e aumentar a competitividade no mercado. 
 
-Neste contexto, este relatório visa detalhar o desenvolvimento de um sistema de compra e venda de passagens aéreas pela internet, utilizando o protocolo TCP/IP e a arquitetura cliente-servidor. A solução proposta baseia-se no uso dos pacotes da linguagem de programação Go para a implementação do servidor e a comunicação com o cliente, a criação de uma API baseada no protocolo de solicitações HTTP e a framework React do JavaScript para o front-end. O sistema foi dockerizado e testado extensivamente, tratando requisições de clientes com paralelismo. A solução atendeu aos requisitos propostos e resultou em um projeto funcional e robusto. 
+Neste contexto, este relatório visa detalhar o desenvolvimento de um sistema de compra e venda de passagens aéreas pela internet, utilizando o protocolo TCP/IP e a arquitetura cliente-servidor. A solução proposta baseia-se no uso dos pacotes da linguagem de programação Go para a implementação de um servidor TCP e a comunicação com o cliente, a criação de uma API baseada no protocolo de solicitações HTTP e a framework React do JavaScript para o front-end. O sistema foi dockerizado e testado extensivamente, tratando requisições de clientes com paralelismo. A solução atendeu aos requisitos propostos e resultou em um projeto funcional e robusto. 
 
 ### Arquitetura da solução
 
@@ -37,7 +37,7 @@ Figura 2. Tela de login
 
 Figura 3. Tela inicial após login 
 
-A comunicação entre o front-end e o back-end ocorre por meio de uma Interface de Programação de Aplicativo (Application Programming Interface, API) desenvolvida em Go, utilizando a biblioteca net. O cliente envia requisições HTTP para a API, que por sua vez converte essas requisições para um formato que o servidor possa processar, permitindo que operações como a pesquisa de rotas e a compra de passagens sejam realizadas de forma eficiente e segura. 
+A comunicação entre o front-end e o back-end ocorre por meio de uma Interface de Programação de Aplicativo (Application Programming Interface, API) desenvolvida em Go, utilizando a biblioteca net. O cliente envia requisições HTTP para a API, que por sua vez converte essas requisições para um formato que o servidor TCP possa processar e devolver uma resposta, que é recebida pela API HTTP e retornada para o "front-end". Isso permite que operações como a pesquisa de rotas e a compra de passagens sejam realizadas de forma eficiente e segura. 
 
 ![fig4](docs/3.png)
 
@@ -51,11 +51,28 @@ Além disso, uma diferença importante entre esses paradigmas está na maneira c
 
 O paradigma de comunicação adotado para este projeto foi o stateful, devido à necessidade de manter a interatividade e a continuidade da sessão do usuário. O servidor registra as sessões ativas no DAO (Data Access Object) assim que o cliente faz login. Isso é útil, por exemplo, para manter temporariamente as reservas no carrinho de compras, implementando uma fila de preferência. Quando um cliente adiciona uma rota ao carrinho, ele tem 30 minutos para confirmar a compra. Nesse período, a quantidade de assentos disponíveis para o voo é temporariamente reduzida em um, garantindo a reserva parcial até que a transação seja finalizada, expire ou o cliente se desconecte. 
 
-Entretanto, apesar da escolha pelo paradigma stateful, o gerenciamento de threads no sistema segue uma abordagem semelhante ao modelo stateless. No servidor, cada requisição é tratada como uma nova goroutine. Quando uma solicitação chega, uma goroutine é criada especificamente para lidar com ela, garantindo eficiência e paralelismo. A goroutine verifica se o usuário possui uma autenticação válida, utilizando um token associado ao ID do cliente. Esse token serve como um identificador único que permite ao servidor reconhecer a sessão e garantir que o cliente esteja autorizado a realizar a operação solicitada, sem a necessidade de manter uma conexão persistente.
+Entretanto, apesar da escolha pelo paradigma stateful, o gerenciamento de threads no sistema segue uma abordagem semelhante ao modelo stateless. No servidor, cada requisição é tratada como uma nova goroutine. Quando uma solicitação chega, uma goroutine é criada especificamente para lidar com ela, garantindo eficiência e paralelismo. A goroutine verifica se o usuário possui uma autenticação válida, utilizando um token associado ao ID do cliente. Esse token serve como um identificador único que permite ao servidor reconhecer a sessão e garantir que o cliente esteja autorizado a realizar a operação solicitada, sem a necessidade de manter uma conexão persistente. Ao final do processamento da requisição e geração da resposta, a goroutine é encerrada.
 
 ### Protocolo de comunicação
 
-O protocolo de comunicação adotado foi o protocolo Hypertext Transfer Protocol (HTTP). O servidor permanece em um loop infinito, utilizando um listener que "ouve" as requisições dos clientes e as processa conforme chegam. Quando o cliente faz uma solicitação ao servidor, ela é recebida como uma requisição HTTP pela API, que atua como um middleware, intermediando a comunicação entre o cliente e o servidor.  
+O software faz uso de dois protocolos de comunicação. O primeiro foi desenvolvido pela equipe, de modo a organizar e assegurar os dados na comunicação através da API Socket Básica, que não dispõe um protocolo de troca de mensagens pronto.
+
+O protocolo desenvolvido é modelado em cima de "requests" e "responses", inspirado no padrão HTTP, no entanto, com uma proposta mais simples, voltada à escala do projeto. A comunicação servidor-cliente se dá pelo cliente criando uma conexão TCP com o servidor e enviando uma "request". O servidor cria uma "goroutine" para processar a solicitação da "request", gerando ao final uma response com os resultados e fechando a "goroutine".
+
+A "request" é composta pelos campos:
+
+- "Action", indicando a ação solicitada do cliente para o servidor;
+- "Auth", enviando um token de sessão de um usuário específico como string, para permitir que os dados solicitados serão processados para o usuário correto, de maneira autenticada;
+- "Data", enviando qualquer tipo de dados que seja incluído em um objeto "JSON", em pares chave-valor com chave de tipo string e valor de tipo genérico.
+
+A requisição de login não necessita do envio da autenticação, visto que é a solicitação que pede um token de autenticação do servidor, para permitir que o usuário faça outras "requests" posteriormente.
+
+As "responses" retornam respostas nos campos:
+
+- "Error", indicando possíveis erros que impossibilitaram o feitio da "request" (credenciais inválidas de usuário, erros internos, regras de negócio);
+- "Data", enviando qualquer tipo de resposta em "JSON", como já explicado anteriormente.
+
+Para a integração da aplicação React com o servidor TCP, foi necessária a adição do protocolo de comunicação Hypertext Transfer Protocol (HTTP). O servidor permanece em um loop infinito, utilizando um listener que "ouve" as requisições dos clientes e as processa conforme chegam. Quando o cliente faz uma solicitação ao servidor, ela é recebida como uma requisição HTTP pela API, que atua como um middleware, intermediando a comunicação entre o cliente e o servidor.  
 
 Os métodos HTTP mais comuns incluem: 
 
@@ -67,7 +84,7 @@ Os métodos HTTP mais comuns incluem:
 
 - DELETE: usado para excluir recursos no servidor, como o cancelamento de uma reserva. 
 
-Após a API receber a solicitação HTTP, ela a traduz para um formato que o servidor possa entender. A API valida os dados e garante que a requisição é bem formada. Em seguida, a API encaminha a solicitação para o servidor, que processa a lógica necessária, como verificar disponibilidade de assentos, validar credenciais de login ou calcular o valor da passagem. Uma vez processada, a resposta do servidor é escrita no buffer da API. Esse buffer armazena temporariamente os dados que precisam ser enviados de volta ao cliente. Após o processamento, a API responde ao cliente com os dados necessários, como a confirmação da compra ou as informações de um voo, utilizando o protocolo HTTP para transmitir essa resposta. 
+Após a API receber a solicitação HTTP, ela a traduz para um formato que o servidor TCP possa entender, ou seja, transforma os dados recebidos em uma "request" no padrão definido pela equipe. A API HTTP atua como o cliente na conexão TCP. Ao receber uma requisição HTTP da aplicação REACT, a API HTTP valida os dados e garante que a requisição é bem formada. Em seguida, a API encaminha a solicitação para o servidor, que processa a lógica necessária, e lhe retorna a "response". Após o recebimento, a API transmite a "response" ao front-end com os dados necessários.
 
 Esse ciclo garante que a comunicação entre o cliente e o servidor ocorra de forma eficiente e organizada, com a API atuando como uma ponte que gerencia o fluxo de requisições e respostas. 
 
@@ -91,7 +108,7 @@ Além disso, o sistema não permite que um mesmo usuário se conecte simultaneam
 
 ### Tratamento de concorrência
 
-Na linguagem de programação Go, as goroutines são sincronizadas por meio de channels. Um channel é um mecanismo de comunicação que permite que goroutines troquem dados entre si de maneira segura e sincronizada. Eles são utilizados para passar informações de uma goroutine para outra, garantindo que o acesso a recursos compartilhados seja controlado e ordenado. Quando combinados com filas e mutexes, os channels permitem gerenciar a concorrência e evitar problemas como condições de corrida, onde múltiplas goroutines tentam acessar o mesmo recurso simultaneamente.
+Na linguagem de programação Go, as goroutines são sincronizadas por meio de channels. Um channel é um mecanismo de comunicação que permite que goroutines troquem dados entre si de maneira segura e sincronizada, evitando "condições de corrida" (situações prejudiciais onde diferentes threads consumam os mesmos recursos ao mesmo tempo). Eles são utilizados para passar informações de uma goroutine para outra, garantindo que o acesso a recursos compartilhados seja controlado e ordenado. Quando combinados com filas e mutexes, os channels permitem gerenciar a concorrência e evitar problemas como condições de corrida, onde múltiplas goroutines tentam acessar o mesmo recurso simultaneamente.
 
 Sem a sincronização adequada entre as goroutines, podem ocorrer erros em cenários de concorrência. Por exemplo, se dois clientes tentarem comprar o último assento disponível em um voo, sem o controle adequado, ambos poderiam acabar conseguindo reservar a mesma passagem, gerando uma inconsistência no sistema. 
 
@@ -144,6 +161,15 @@ Para executar a conteinerização e execução do sistema, é necessário ter a 
 Para a execução para testes, sem uso do docker, o arquivo shell `start.sh`, na pasta raiz do projeto, contém as instruções de execução sem conteinerização do projeto. Para usá-las, deve ser executado os comandos `chmod +x start.sh`, para dar permissão de execução ao arquivo shell e `./start.sh`, na pasta raiz do projeto.
 
 ### Conclusão
+
+O software desenvolvido atende aos requisitos definidos pelo Aprendizado Baseado em Problemas. O sistema permite a execução de um servidor capaz de receber diversas requisições de diferentes clientes em simultâneo. As estruturas de channels e mutexes em go assegura que as estruturas de dados sejam acessadas por apenas um cliente de cada vez, evitando "condições de corrida" por recursos de memória. A solução é eficiente por permitir a concorrência de goroutines, habilitando pseudo-paralelismo das tarefas do servidor, acelerando o "throughput". O software também conta com uma interface gráfica intuitiva, como solicitado no problema, além de possuir design moderno, seguindo princípios de UX Design.
+
+Conforme a plausível evolução do projeto, possíveis melhorias incluiriam:
+- A estruturação de todo servidor exclusivamente no protocolo HTTP (o que não foi feito, devido as exigências do projeto em relação ao uso do TCP);
+- Melhorias na estilização da interface gráfica, voltadas a design responsivo para diferentes telas;
+- Maiores baterias de testes, visando analisar casos de erros mais aprofundados ou em maior densidade de usuários simultâneos;
+
+A experiência da produção do sistema foi proveitosa, por trazer a elucidação de como ferramentas modernas de desenvolvimento web back-end funcionam "por baixo dos panos". O aprendizado prático sobre algoritmos de sincronização e testagem para lidar com sistemas distribuídos foi determinante. Além disso, outro detalhe importante para a evolução profissional/acadêmica dos desenvolvedores foi a oportunidade do uso de ferramentas modernas de "front-end", no caso do React, e "DevOps" para conteinerização, com Docker, altamente utilizados na atualidade.
 
 ### Referências
 
