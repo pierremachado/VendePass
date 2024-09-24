@@ -5,9 +5,9 @@
 
 ### Equipe
 
-[![Valmir Nogueira](https://github.com/valmirnogfilho.png?size=20)](https://github.com/valmirnogfilho) [Valmir Nogueira](https://github.com/valmirnogfilho)
-
 [![Pierre Machado](https://github.com/pierremachado.png?size=20)](https://github.com/pierremachado) [Pierre Machado](https://github.com/pierremachado)
+
+[![Valmir Nogueira](https://github.com/valmirnogfilho.png?size=20)](https://github.com/valmirnogfilho) [Valmir Nogueira](https://github.com/valmirnogfilho)
 
 ### Introdução
 
@@ -57,9 +57,11 @@ Entretanto, apesar da escolha pelo paradigma stateful, o gerenciamento de thread
 
 O software faz uso de dois protocolos de comunicação. O primeiro foi desenvolvido pela equipe, de modo a organizar e assegurar os dados na comunicação através da API Socket Básica, que não dispõe um protocolo de troca de mensagens pronto.
 
-O protocolo desenvolvido é modelado em cima de "requests" e "responses", inspirado no padrão HTTP, no entanto, com uma proposta mais simples, voltada à escala do projeto. A comunicação servidor-cliente se dá pelo cliente criando uma conexão TCP com o servidor e enviando uma "request". O servidor cria uma "goroutine" para processar a solicitação da "request", gerando ao final uma response com os resultados e fechando a "goroutine".
+O protocolo desenvolvido é modelado em cima de "requests" e "responses", inspirado no padrão HTTP, no entanto, com uma proposta mais simples, voltada à escala do projeto. A comunicação servidor-cliente se dá pelo cliente criando uma conexão TCP com o servidor e enviando uma "request". O servidor cria uma "goroutine" para processar a solicitação da "request", gerando ao final uma "response" com os resultados e fechando a "goroutine".
 
 !["Requests" e "Responses"](https://github.com/ValmirNogFilho/VendePass/blob/master/docs/umlpbleredes.jpg)
+
+Figura 5. Estruturas de dados das "Requests" e "Responses".
 
 A "request" é composta pelos campos:
 
@@ -89,6 +91,8 @@ Os métodos HTTP mais comuns incluem:
 Após a API receber a solicitação HTTP, ela a traduz para um formato que o servidor TCP possa entender, ou seja, transforma os dados recebidos em uma "request" no padrão definido pela equipe. A API HTTP atua como o cliente na conexão TCP. Ao receber uma requisição HTTP da aplicação REACT, a API HTTP valida os dados e garante que a requisição é bem formada. Em seguida, a API encaminha a solicitação para o servidor, que processa a lógica necessária, e lhe retorna a "response". Após o recebimento, a API transmite a "response" ao front-end com os dados necessários.
 
 ![Protocolos de comunicação](https://github.com/ValmirNogFilho/VendePass/blob/master/docs/protocol.jpg)
+
+Figura 6. Diagrama de comunicação entre front-end e back-end.
 
 Esse ciclo garante que a comunicação entre o cliente e o servidor ocorra de forma eficiente e organizada, com a API atuando como uma ponte que gerencia o fluxo de requisições e respostas. 
 
@@ -122,11 +126,11 @@ Além disso, foi implementada uma etapa extra para aumentar a segurança da rese
 
 ![fig5](docs/4.png)
 
-Figura 5. Carrinho de um dos clientes.
+Figura 7. Carrinho de um dos clientes.
 
 ![fig6](docs/5.jpg)
 
-Figura 6. Indicação de que não é possível reservar um voo já reservado por outro cliente.
+Figura 8. Indicação de que não é possível reservar um voo já reservado por outro cliente.
 
 ### Desempenho e avaliação
 
