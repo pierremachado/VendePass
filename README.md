@@ -59,6 +59,8 @@ O software faz uso de dois protocolos de comunicação. O primeiro foi desenvolv
 
 O protocolo desenvolvido é modelado em cima de "requests" e "responses", inspirado no padrão HTTP, no entanto, com uma proposta mais simples, voltada à escala do projeto. A comunicação servidor-cliente se dá pelo cliente criando uma conexão TCP com o servidor e enviando uma "request". O servidor cria uma "goroutine" para processar a solicitação da "request", gerando ao final uma response com os resultados e fechando a "goroutine".
 
+!["Requests" e "Responses"](https://github.com/ValmirNogFilho/VendePass/blob/master/docs/umlpbleredes.jpg)
+
 A "request" é composta pelos campos:
 
 - "Action", indicando a ação solicitada do cliente para o servidor;
@@ -85,6 +87,8 @@ Os métodos HTTP mais comuns incluem:
 - DELETE: usado para excluir recursos no servidor, como o cancelamento de uma reserva. 
 
 Após a API receber a solicitação HTTP, ela a traduz para um formato que o servidor TCP possa entender, ou seja, transforma os dados recebidos em uma "request" no padrão definido pela equipe. A API HTTP atua como o cliente na conexão TCP. Ao receber uma requisição HTTP da aplicação REACT, a API HTTP valida os dados e garante que a requisição é bem formada. Em seguida, a API encaminha a solicitação para o servidor, que processa a lógica necessária, e lhe retorna a "response". Após o recebimento, a API transmite a "response" ao front-end com os dados necessários.
+
+![Protocolos de comunicação](https://github.com/ValmirNogFilho/VendePass/blob/master/docs/protocol.jpg)
 
 Esse ciclo garante que a comunicação entre o cliente e o servidor ocorra de forma eficiente e organizada, com a API atuando como uma ponte que gerencia o fluxo de requisições e respostas. 
 
