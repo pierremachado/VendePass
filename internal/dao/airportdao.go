@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"vendepass/internal/models"
 
 	"github.com/google/uuid"
@@ -15,13 +16,17 @@ import (
 // MemoryAirportDAO is a data access object (DAO) for managing airports in memory.
 // It provides methods for retrieving, inserting, updating, and deleting airports.
 type MemoryAirportDAO struct {
-	data map[uuid.UUID]models.Airport
+	data map[uuid.UUID]*models.Airport
+	mu   sync.RWMutex
 }
 
 // New initializes the MemoryAirportDAO by loading airports data from a JSON file and storing them in a map.
 // If the map is not initialized, it creates a new one.
 func (dao *MemoryAirportDAO) New() {
-	var airports []models.Airport
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
+
+	var airports []*models.Airport
 
 	baseDir, err := os.Getwd()
 	if err != nil {
@@ -41,7 +46,7 @@ func (dao *MemoryAirportDAO) New() {
 	}
 
 	if dao.data == nil {
-		dao.data = make(map[uuid.UUID]models.Airport)
+		dao.data = make(map[uuid.UUID]*models.Airport)
 	}
 
 	for _, airport := range airports {
@@ -56,8 +61,10 @@ func (dao *MemoryAirportDAO) New() {
 //
 // Return:
 // - []models.Airport: A slice of all airports in the memory data store.
-func (dao *MemoryAirportDAO) FindAll() []models.Airport {
-	v := make([]models.Airport, 0, len(dao.data))
+func (dao *MemoryAirportDAO) FindAll() []*models.Airport {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
+	v := make([]*models.Airport, 0, len(dao.data))
 
 	for _, value := range dao.data {
 		v = append(v, value)
@@ -77,11 +84,13 @@ func (dao *MemoryAirportDAO) FindAll() []models.Airport {
 // Return:
 // - This function does not return any value.
 func (dao *MemoryAirportDAO) Insert(t *models.Airport) {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	id := uuid.New()
 
 	t.Id = id
 
-	dao.data[id] = *t
+	dao.data[id] = t
 }
 
 // Update updates an existing airport in the memory data store.
@@ -99,6 +108,8 @@ func (dao *MemoryAirportDAO) Insert(t *models.Airport) {
 //     If the airport was found and updated, the function returns nil.
 //     If the airport was not found, the function returns an error with the message "not found".
 func (dao *MemoryAirportDAO) Update(t *models.Airport) error {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 
 	_, exists := dao.data[t.Id]
 
@@ -106,7 +117,7 @@ func (dao *MemoryAirportDAO) Update(t *models.Airport) error {
 		return errors.New("not found")
 	}
 
-	dao.data[t.Id] = *t
+	dao.data[t.Id] = t
 
 	return nil
 }
@@ -123,7 +134,9 @@ func (dao *MemoryAirportDAO) Update(t *models.Airport) error {
 //
 // Return:
 // - This function does not return any value.
-func (dao *MemoryAirportDAO) Delete(t models.Airport) {
+func (dao *MemoryAirportDAO) Delete(t *models.Airport) {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	delete(dao.data, t.Id)
 }
 
@@ -142,13 +155,15 @@ func (dao *MemoryAirportDAO) Delete(t models.Airport) {
 //     If the airport was found, the function returns nil.
 //     If the airport was not found, the function returns an error with the message "not found".
 func (dao *MemoryAirportDAO) FindById(id uuid.UUID) (*models.Airport, error) {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	airport, exists := dao.data[id]
 
 	if !exists {
 		return nil, errors.New("not found")
 	}
 
-	return &airport, nil
+	return airport, nil
 }
 
 // FindByName retrieves an airport from the memory data store based on the provided city name.
@@ -158,16 +173,18 @@ func (dao *MemoryAirportDAO) FindById(id uuid.UUID) (*models.Airport, error) {
 // If no match is found, the function returns nil.
 //
 // Parameters:
-// 	- name: A string representing the city name of the airport to be retrieved.
+//   - name: A string representing the city name of the airport to be retrieved.
 //
 // Return:
-//  - *models.Airport: A pointer to the airport if found, or nil if not found.
+//   - *models.Airport: A pointer to the airport if found, or nil if not found.
 //     If the airport is found, the function returns a pointer to the airport.
 //     If the airport is not found, the function returns nil.
 func (dao *MemoryAirportDAO) FindByName(name string) *models.Airport {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	for _, value := range dao.data {
 		if value.City.Name == name {
-			return &value
+			return value
 		}
 	}
 	return nil

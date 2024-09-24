@@ -26,7 +26,8 @@ var sessionDao interfaces.SessionDAO
 // flightDao (interfaces.FlightDAO) - A singleton instance of FlightDAO.
 func GetFlightDAO() interfaces.FlightDAO {
 	if flightDao == nil {
-		flightDao = &MemoryFlightDAO{make(map[uuid.UUID]map[uuid.UUID]*models.Flight)}
+		flightDao = &MemoryFlightDAO{data: make(map[uuid.UUID]map[uuid.UUID]*models.Flight),
+			mu: sync.RWMutex{}}
 		flightDao.New()
 	}
 
@@ -35,7 +36,8 @@ func GetFlightDAO() interfaces.FlightDAO {
 
 func GetClientDAO() interfaces.ClientDAO {
 	if clientDao == nil {
-		clientDao = &MemoryClientDAO{make(map[uuid.UUID]*models.Client)}
+		clientDao = &MemoryClientDAO{data: make(map[uuid.UUID]*models.Client),
+			mu: sync.RWMutex{}}
 		clientDao.New()
 	}
 
@@ -55,7 +57,8 @@ func GetSessionDAO() interfaces.SessionDAO {
 
 func GetAirportDAO() interfaces.AirportDAO {
 	if airportDao == nil {
-		airportDao = &MemoryAirportDAO{make(map[uuid.UUID]models.Airport)}
+		airportDao = &MemoryAirportDAO{data: make(map[uuid.UUID]*models.Airport),
+			mu: sync.RWMutex{}}
 		airportDao.New()
 	}
 

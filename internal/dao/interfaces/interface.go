@@ -40,10 +40,10 @@ type SessionDAO interface {
 }
 
 type AirportDAO interface {
-	FindAll() []models.Airport
+	FindAll() []*models.Airport
 	Insert(*models.Airport)
 	Update(*models.Airport) error
-	Delete(models.Airport)
+	Delete(*models.Airport)
 	FindById(uuid.UUID) (*models.Airport, error)
 	New()
 	FindByName(name string) *models.Airport

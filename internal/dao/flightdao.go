@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"vendepass/internal/models"
 
 	"github.com/google/uuid"
@@ -16,11 +17,14 @@ import (
 // It also includes a breadth-first search algorithm for finding the shortest path between airports.
 type MemoryFlightDAO struct {
 	data map[uuid.UUID]map[uuid.UUID]*models.Flight
+	mu   sync.RWMutex
 }
 
 // New initializes the MemoryFlightDAO by reading flight data from a JSON file and populating the internal data structure.
 // It also creates a new session queue for each flight.
 func (dao *MemoryFlightDAO) New() {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	baseDir, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -59,6 +63,8 @@ func (dao *MemoryFlightDAO) New() {
 //   - A slice of pointers to models.Flight, representing all flights in the data structure.
 //   - If no flights are found, an empty slice is returned.
 func (dao *MemoryFlightDAO) FindAll() []*models.Flight {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	var v []*models.Flight
 	for _, array := range dao.data {
 		for _, flight := range array {
@@ -78,6 +84,8 @@ func (dao *MemoryFlightDAO) FindAll() []*models.Flight {
 //   - t *models.Flight: A pointer to the flight to be inserted. The flight's ID, source airport ID, destination airport ID,
 //   - passengers, and seats should be set before calling this function.
 func (dao *MemoryFlightDAO) Insert(t *models.Flight) {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	id := uuid.New()
 
 	t.Id = id
@@ -89,7 +97,6 @@ func (dao *MemoryFlightDAO) Insert(t *models.Flight) {
 	dao.data[t.SourceAirportId][t.DestAirportId] = t
 	t.Queue = make(chan *models.Session)
 }
-
 
 // Update updates an existing flight in the memory data structure.
 // It checks if the flight exists in the data structure based on the source airport ID and destination airport ID.
@@ -104,7 +111,8 @@ func (dao *MemoryFlightDAO) Insert(t *models.Flight) {
 //   - An error if the flight is not found in the data structure.
 //   - nil if the flight is successfully updated.
 func (dao *MemoryFlightDAO) Update(t *models.Flight) error {
-
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	_, exists := dao.data[t.SourceAirportId][t.DestAirportId]
 
 	if !exists {
@@ -130,6 +138,8 @@ func (dao *MemoryFlightDAO) Update(t *models.Flight) error {
 //   - An error if the flight is not found in the data structure after deletion.
 //   - nil if the flight is successfully deleted.
 func (dao *MemoryFlightDAO) Delete(t *models.Flight) error {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	delete(dao.data[t.SourceAirportId], t.DestAirportId)
 
 	_, exists := dao.data[t.SourceAirportId][t.DestAirportId]
@@ -153,6 +163,8 @@ func (dao *MemoryFlightDAO) Delete(t *models.Flight) error {
 //   - *models.Flight: A pointer to the flight with the matching ID, or nil if no matching flight is found.
 //   - error: An error indicating that the flight was not found, or nil if the flight is successfully retrieved.
 func (dao *MemoryFlightDAO) FindById(id uuid.UUID) (*models.Flight, error) {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	for _, array := range dao.data {
 		for _, flight := range array {
 			if flight.Id == id {
@@ -176,6 +188,8 @@ func (dao *MemoryFlightDAO) FindById(id uuid.UUID) (*models.Flight, error) {
 //   - []*models.Flight: A slice of pointers to flights departing from the specified airport.
 //   - error: An error indicating that the airport was not found, or nil if flights are successfully retrieved.
 func (dao *MemoryFlightDAO) FindBySource(id uuid.UUID) ([]*models.Flight, error) {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	t, exists := dao.data[id]
 
 	if !exists {
@@ -204,6 +218,8 @@ func (dao *MemoryFlightDAO) FindBySource(id uuid.UUID) ([]*models.Flight, error)
 //   - *models.Flight: A pointer to the flight with the matching source and destination airport IDs, or nil if no matching flight is found.
 //   - error: An error indicating that the flight was not found, or nil if the flight is successfully retrieved.
 func (dao *MemoryFlightDAO) FindBySourceAndDest(source uuid.UUID, dest uuid.UUID) (*models.Flight, error) {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	t, exists := dao.data[source][dest]
 
 	if !exists {
@@ -226,6 +242,8 @@ func (dao *MemoryFlightDAO) FindBySourceAndDest(source uuid.UUID, dest uuid.UUID
 //   - []*models.Flight: A slice of pointers to flights representing the shortest path between the source and destination airports.
 //   - error: An error indicating that no route was found, or nil if a route is successfully retrieved.
 func (dao *MemoryFlightDAO) BreadthFirstSearch(source uuid.UUID, dest uuid.UUID) ([]*models.Flight, error) {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	visited := make(map[uuid.UUID]bool, len(dao.data))
 	queue := []uuid.UUID{source}
 	visited[source] = true
@@ -269,5 +287,7 @@ func (dao *MemoryFlightDAO) BreadthFirstSearch(source uuid.UUID, dest uuid.UUID)
 // It resets the internal map of flights to an empty map, effectively deleting all flights.
 // This function is useful for testing or resetting the data structure to its initial state.
 func (dao *MemoryFlightDAO) DeleteAll() {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	dao.data = make(map[uuid.UUID]map[uuid.UUID]*models.Flight)
 }

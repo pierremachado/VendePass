@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"vendepass/internal/models"
 
 	"github.com/google/uuid"
@@ -15,12 +16,14 @@ import (
 // It provides methods for inserting, updating, deleting, and retrieving clients.
 type MemoryClientDAO struct {
 	data map[uuid.UUID]*models.Client
+	mu   sync.RWMutex
 }
 
 // New initializes the MemoryClientDAO by loading client data from a JSON file.
 // It sets up the data map with the client data from the JSON file.
 func (dao *MemoryClientDAO) New() {
-
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	var clients []models.Client
 
 	baseDir, err := os.Getwd()
@@ -49,6 +52,8 @@ func (dao *MemoryClientDAO) New() {
 //
 // If no clients are found, an empty slice is returned.
 func (dao *MemoryClientDAO) FindAll() []*models.Client {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	v := make([]*models.Client, 0, len(dao.data))
 
 	for _, value := range dao.data {
@@ -64,8 +69,10 @@ func (dao *MemoryClientDAO) FindAll() []*models.Client {
 // Then, it inserts the client into the data map using the generated UUID as the key.
 //
 // Parameters:
-// 	- t: A pointer to the client model to be inserted. The client's Id field will be updated with a new UUID.
+//   - t: A pointer to the client model to be inserted. The client's Id field will be updated with a new UUID.
 func (dao *MemoryClientDAO) Insert(t *models.Client) {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	id := uuid.New()
 
 	t.Id = id
@@ -80,12 +87,13 @@ func (dao *MemoryClientDAO) Insert(t *models.Client) {
 // If the client is not found, the function returns an error indicating that the client was not found.
 //
 // Parameters:
-// 	- t: A pointer to the client model to be updated. The client's Id field should be set to the desired client's UUID.
+//   - t: A pointer to the client model to be updated. The client's Id field should be set to the desired client's UUID.
 //
 // Return:
-// 	- An error if the client was not found in the data map.
+//   - An error if the client was not found in the data map.
 func (dao *MemoryClientDAO) Update(t *models.Client) error {
-
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	lastClient, exists := dao.data[t.Id]
 
 	if !exists {
@@ -104,8 +112,10 @@ func (dao *MemoryClientDAO) Update(t *models.Client) error {
 // If the client is not found, the function does nothing.
 //
 // Parameters:
-// 	- t: The client model to be deleted. The function uses the client's Id field to identify the client in the data map.
+//   - t: The client model to be deleted. The function uses the client's Id field to identify the client in the data map.
 func (dao *MemoryClientDAO) Delete(t models.Client) {
+	dao.mu.Lock()
+	defer dao.mu.Unlock()
 	delete(dao.data, t.Id)
 }
 
@@ -116,12 +126,14 @@ func (dao *MemoryClientDAO) Delete(t models.Client) {
 // If the client is not found, the function returns nil and an error indicating that the client was not found.
 //
 // Parameters:
-// 	- id: The UUID of the client to be retrieved.
+//   - id: The UUID of the client to be retrieved.
 //
 // Return:
-// 	- A pointer to the client if found, nil otherwise.
-// 	- An error indicating that the client was not found, nil otherwise.
+//   - A pointer to the client if found, nil otherwise.
+//   - An error indicating that the client was not found, nil otherwise.
 func (dao *MemoryClientDAO) FindById(id uuid.UUID) (*models.Client, error) {
+	dao.mu.RLock()
+	defer dao.mu.RUnlock()
 	client, exists := dao.data[id]
 
 	if !exists {
