@@ -26,8 +26,8 @@ func (dao *MemorySessionDAO) New() {
 // It locks the read mutex to ensure thread safety while accessing the data.
 //
 // Returns:
-// 	- A slice of pointers to Session structs, representing all sessions in the data store.
-// 	- If no sessions are found, an empty slice is returned.
+//   - A slice of pointers to Session structs, representing all sessions in the data store.
+//   - If no sessions are found, an empty slice is returned.
 func (dao *MemorySessionDAO) FindAll() []*models.Session {
 	dao.mu.RLock()
 	defer dao.mu.RUnlock()
@@ -46,7 +46,7 @@ func (dao *MemorySessionDAO) FindAll() []*models.Session {
 // and then stores the session in the data map.
 //
 // Parameters:
-// 	- t: A pointer to a Session struct representing the session to be added.
+//   - t: A pointer to a Session struct representing the session to be added.
 func (dao *MemorySessionDAO) Insert(t *models.Session) {
 	dao.mu.Lock()
 	defer dao.mu.Unlock()
@@ -54,6 +54,8 @@ func (dao *MemorySessionDAO) Insert(t *models.Session) {
 	id := uuid.New()
 	t.ID = id
 	t.Reservations = make(map[uuid.UUID]models.Reservation)
+	t.Mu = sync.RWMutex{}
+	t.FailedReservations = make(chan string)
 	dao.data[id] = t
 }
 
@@ -61,12 +63,12 @@ func (dao *MemorySessionDAO) Insert(t *models.Session) {
 // It locks the mutex to ensure thread safety while accessing the data.
 //
 // Parameters:
-// 	- t: A pointer to a Session struct representing the session to be updated.
-// 		The ID field of the session is used to identify the session to be updated.
+//   - t: A pointer to a Session struct representing the session to be updated.
+//     The ID field of the session is used to identify the session to be updated.
 //
 // Returns:
-// 	- An error if the session with the given ID does not exist in the data store.
-// 	- nil if the session is successfully updated.
+//   - An error if the session with the given ID does not exist in the data store.
+//   - nil if the session is successfully updated.
 func (dao *MemorySessionDAO) Update(t *models.Session) error {
 	dao.mu.Lock()
 	defer dao.mu.Unlock()
@@ -84,8 +86,8 @@ func (dao *MemorySessionDAO) Update(t *models.Session) error {
 // It locks the mutex to ensure thread safety while accessing the data.
 //
 // Parameters:
-// 	- t: A pointer to a Session struct representing the session to be deleted.
-// 		The ID field of the session is used to identify the session to be deleted.
+//   - t: A pointer to a Session struct representing the session to be deleted.
+//     The ID field of the session is used to identify the session to be deleted.
 func (dao *MemorySessionDAO) Delete(t *models.Session) {
 	dao.mu.Lock()
 	defer dao.mu.Unlock()
@@ -97,12 +99,12 @@ func (dao *MemorySessionDAO) Delete(t *models.Session) {
 // It locks the read mutex to ensure thread safety while accessing the data.
 //
 // Parameters:
-// 	- id: A UUID representing the ID of the session to be retrieved.
+//   - id: A UUID representing the ID of the session to be retrieved.
 //
 // Returns:
-// 	- A pointer to a Session struct representing the session with the given ID.
-// 	  If the session is found, the function returns the session and nil as the error.
-// 	- If the session is not found, the function returns nil and an error with the message "not found".
+//   - A pointer to a Session struct representing the session with the given ID.
+//     If the session is found, the function returns the session and nil as the error.
+//   - If the session is not found, the function returns nil and an error with the message "not found".
 func (dao *MemorySessionDAO) FindById(id uuid.UUID) (*models.Session, error) {
 	dao.mu.RLock()
 	defer dao.mu.RUnlock()

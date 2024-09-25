@@ -24,7 +24,7 @@ func main() {
 	}
 	defer listener.Close()
 
-	fmt.Println("servidor ouvindo na porta :8080")
+	fmt.Println("servidor ouvindo na porta :8888")
 
 	go server.CleanupSessions(timeLimit)
 

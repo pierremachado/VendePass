@@ -57,12 +57,14 @@ func (f *Flight) AcceptReservation() (*Ticket, error) {
 // If no seats are available, it logs an error message.
 func (f *Flight) ProcessReservations() {
 	for session := range f.Queue {
+		session.Mu.Lock()
 		ticket, err := f.AcceptReservation()
 		if err != nil {
 			fmt.Printf("Session %s: error reserving for flight %s - %s\n", session.ID, f.Id, err)
+			session.FailedReservations <- f.Id.String()
 		} else {
+			session.FailedReservations <- "success"
 			fmt.Println("session" + session.ID.String())
-			session.Mu.Lock()
 			ticket.ClientId = session.ClientID
 			id := uuid.New()
 			session.Reservations[id] = Reservation{
@@ -70,8 +72,9 @@ func (f *Flight) ProcessReservations() {
 				CreatedAt: time.Now(),
 				Ticket:    ticket,
 			}
-			session.Mu.Unlock()
 			fmt.Printf("Session %s: flight %s reserved successfully!\n", session.ID, f.Id)
 		}
+		fmt.Println(session.FailedReservations)
+		session.Mu.Unlock()
 	}
 }

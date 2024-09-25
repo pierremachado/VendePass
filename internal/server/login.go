@@ -82,6 +82,8 @@ func login(data interface{}, conn net.Conn) {
 	json.Unmarshal(jsonData, &logCred)
 
 	login, err := getClient(logCred.Username)
+	// login.Mu.Lock()
+	// defer login.Mu.Unlock()
 	fmt.Println(login)
 	if err != nil {
 		WriteNewResponse(
