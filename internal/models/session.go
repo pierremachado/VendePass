@@ -8,9 +8,10 @@ import (
 )
 
 type Session struct {
-	ID             uuid.UUID
-	ClientID       uuid.UUID
-	LastTimeActive time.Time
-	Reservations   map[uuid.UUID]Reservation
-	Mu             sync.RWMutex
+	ID                 uuid.UUID
+	ClientID           uuid.UUID
+	LastTimeActive     time.Time
+	Reservations       map[uuid.UUID]Reservation
+	FailedReservations chan string
+	Mu                 sync.RWMutex
 }
