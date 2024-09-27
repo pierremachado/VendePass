@@ -49,9 +49,9 @@ Existem dois tipos de paradigma de comunicação: stateful e stateless. No parad
 
 Além disso, uma diferença importante entre esses paradigmas está na maneira como as threads são gerenciadas. Em sistemas stateful, há uma maior complexidade no gerenciamento de threads, pois elas precisam lidar com a continuidade do estado da sessão, garantindo que as interações anteriores sejam levadas em conta. No entanto, em sistemas stateless, cada thread trata uma requisição individualmente, sem necessidade de armazenar ou consultar o estado anterior, o que pode facilitar a execução paralela de múltiplas solicitações. 
 
-O paradigma de comunicação adotado para este projeto foi o stateful, devido à necessidade de manter a interatividade e a continuidade da sessão do usuário. O servidor registra as sessões ativas no DAO (Data Access Object) assim que o cliente faz login. Isso é útil, por exemplo, para manter temporariamente as reservas no carrinho de compras, implementando uma fila de preferência. Quando um cliente adiciona uma rota ao carrinho, ele tem 30 minutos para confirmar a compra. Nesse período, a quantidade de assentos disponíveis para o voo é temporariamente reduzida em um, garantindo a reserva parcial até que a transação seja finalizada, expire ou o cliente se desconecte. 
+O paradigma de comunicação adotado para este projeto foi o stateless, pois o cliente precisa enviar um token de autenticação associado à sua sessão a cada requisição. Entretanto, o servidor registra as sessões ativas no DAO (Data Access Object) assim que o cliente faz login. Esse mecanismo é útil, por exemplo, para adicionar uma rota ao carrinho de compras. Associado a sessão do cliente, o cliente tem 30 minutos para confirmar a compra, e, nesse período, a quantidade de assentos disponíveis para o voo é temporariamente reduzida, garantindo a reserva até que a transação seja concluída, o tempo expire ou o cliente se desconecte.
 
-Entretanto, apesar da escolha pelo paradigma stateful, o gerenciamento de threads no sistema segue uma abordagem semelhante ao modelo stateless. No servidor, cada requisição é tratada como uma nova goroutine. Quando uma solicitação chega, uma goroutine é criada especificamente para lidar com ela, garantindo eficiência e paralelismo. A goroutine verifica se o usuário possui uma autenticação válida, utilizando um token associado ao ID do cliente. Esse token serve como um identificador único que permite ao servidor reconhecer a sessão e garantir que o cliente esteja autorizado a realizar a operação solicitada, sem a necessidade de manter uma conexão persistente. Ao final do processamento da requisição e geração da resposta, a goroutine é encerrada.
+No servidor, cada requisição é tratada de forma independente por meio de goroutines. Quando uma solicitação chega, uma nova goroutine é criada para processá-la, garantindo eficiência e paralelismo. A goroutine verifica se o token enviado pelo cliente é válido, o que permite ao servidor identificar e autorizar a operação, sem a necessidade de manter uma sessão ativa entre as requisições. Após o processamento da requisição e a geração da resposta, a goroutine é finalizada.
 
 ### Protocolo de comunicação
 
@@ -93,6 +93,23 @@ Após a API receber a solicitação HTTP, ela a traduz para um formato que o ser
 ![Protocolos de comunicação](https://github.com/ValmirNogFilho/VendePass/blob/master/docs/protocol.jpg)
 
 Figura 6. Diagrama de comunicação entre front-end e back-end.
+
+| Método               | Descrição                                                                                           |
+|----------------------|-----------------------------------------------------------------------------------------------------|
+| `login`              | Processa o login do usuário, verificando as credenciais e criando uma nova sessão se bem-sucedido.    |
+| `getUserBySessionToken` | Recupera o usuário associado a um token de sessão válido.                                           |
+| `logout`             | Realiza o logout do usuário, encerrando a sessão e liberando reservas associadas.                    |
+| `AllRoutes`          | Retorna uma lista de todas as rotas disponíveis após validar o token de autenticação.                |
+| `Route`              | Recupera uma rota entre duas cidades, validando o token de autenticação e verificando se a rota existe. |
+| `Flights`            | Retorna detalhes de voos com base nos IDs fornecidos, após validar o token de autenticação.          |
+| `Reservation`        | Cria uma reserva para os voos solicitados, verificando a disponibilidade e adicionando à sessão do cliente. |
+| `CancelReservation`   | Cancela uma reserva de voo específica, liberando o assento e removendo a reserva da sessão do cliente. |
+| `GetCart`            | Retorna o carrinho do cliente, com as reservas atuais, baseado no token de autenticação.             |
+| `BuyTicket`          | Finaliza a compra de um bilhete, validando a reserva e atualizando os dados do voo e do cliente.     |
+| `CancelBuy`          | Cancela a compra de um bilhete, atualizando os dados do cliente e do voo, se autorizado.            |
+| `GetTickets`         | Retorna todos os bilhetes comprados pelo cliente autenticado.                                        |
+
+Tabela 1. Métodos responsáveis por lidar com diferentes requisições de um cliente.
 
 Esse ciclo garante que a comunicação entre o cliente e o servidor ocorra de forma eficiente e organizada, com a API atuando como uma ponte que gerencia o fluxo de requisições e respostas. 
 
