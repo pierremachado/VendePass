@@ -20,7 +20,7 @@ const Header = ({name}) => {
 
     return (
         <header>
-            <img src={logo} alt="logo" className="logo" width={"170px"} />
+            <img src={logo} alt="logo" className="logo" width={"180px"} />
             <div className="line"></div>
             <div className="title">
                 <h2>Hora de decolar.</h2>

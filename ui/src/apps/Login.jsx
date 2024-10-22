@@ -7,7 +7,7 @@ import { url } from "../main";
 import "./login.css";
 import username from "../assets/username.svg";
 import password from "../assets/password.svg";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo2.svg";
 const Login = () => {
     const {
         register,
@@ -40,10 +40,8 @@ const Login = () => {
     };
     return (
         <div className="login">
-
-
             <form onSubmit={handleSubmit(onSubmit)} className="login-container">
-                <img src={logo} alt="" />
+                <img src={logo} alt="" style={{ width: '90%', height: 'auto'}} />
                 <div className="username-group">
                     <img src={username} alt="" width={"17px"} />
                     <input
